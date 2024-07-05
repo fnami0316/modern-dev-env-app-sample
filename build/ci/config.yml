@@ -1,0 +1,130 @@
+version: 2.1
+
+orbs:
+  go: circleci/go@1.11.0 # Goモジュールのダウンロード(キャッシュも使用)、go test実行を楽にする用
+  slack: circleci/slack@4.13.3 # Slack通知用
+
+# 実行環境の定義
+executors:
+  go:
+    docker:
+      - image: cimg/go:1.22.5
+  base:
+    docker:
+      - image: cimg/base:current
+
+# step群の定義
+commands:
+  send-notification-with-slack:
+    description: "Send notification with Slack"
+    parameters:
+      event:
+        type: enum
+        enum: [fail, pass, always]
+        default: always
+      message:
+        type: string
+        default: "No message"
+    steps:
+      - slack/notify:
+          event: << parameters.event >>
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "<< parameters.message >>",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch*: $CIRCLE_BRANCH"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*User*: $CIRCLE_USERNAME"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
+                    }
+                  ]
+                }
+              ]
+            }
+  go-mod-download:
+    description: "Download Go modules with cache and save cache with Go Orb"
+    steps:
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+  go-test:
+    description: "Run go test with Go Orb"
+    steps:
+      - go/test:
+          covermode: atomic
+          failfast: true
+          race: true
+
+jobs:
+  send-notification-workflow-start:
+    description: "Send workflow start notification with Slack"
+    parameters:
+      workflow-name:
+        type: string
+        default: "Workflow name undefined"
+    executor: base
+    steps:
+      - send-notification-with-slack:
+          message: "Workflow: << parameters.workflow-name >> Start"
+  send-notification-workflow-success:
+    description: "Send workflow success notification with Slack"
+    parameters:
+      workflow-name:
+        type: string
+        default: "Workflow name undefined"
+    executor: base
+    steps:
+      - send-notification-with-slack:
+          message: "Workflow: << parameters.workflow-name >> Success"
+  build-and-test:
+    executor: go
+    steps:
+      - checkout
+      - go-mod-download
+      - go-test
+      - persist_to_workspace:
+          root: ~/project
+          paths: .
+      - send-notification-with-slack:
+          event: fail
+          message: ":fire: CircleCI Job:${CIRCLE_JOB} (node${CIRCLE_NODE_INDEX}) failure ! :fire:"
+  # deploy: TODO
+
+workflows:
+  build-and-test:
+    jobs:
+      - send-notification-workflow-start:
+          workflow-name: "build-and-test"
+      - build-and-test:
+          requires:
+            - send-notification-workflow-start
+      - send-notification-workflow-success:
+          workflow-name: "build-and-test"
+          requires:
+            - build-and-test
