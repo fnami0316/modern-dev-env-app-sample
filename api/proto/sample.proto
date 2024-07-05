@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/fnami0316/modern-dev-env-app-sample/internal/sample_app/pb";
+
+// サンプルサービス
+service SampleService {
+  // サンプルデータのリストを取得
+  rpc ListSamples (ListSamplesRequest) returns (ListSamplesResponse) {}
+}
+
+message ListSamplesRequest {
+}
+
+message ListSamplesResponse {
+  repeated Sample samples = 1;
+}
+
+message Sample {
+  int32 id = 1;
+  string name = 2;
+}
