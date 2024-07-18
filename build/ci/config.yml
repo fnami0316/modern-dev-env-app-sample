@@ -157,9 +157,9 @@ jobs:
       - run:
           name: "Build Docker image and push to Artifact Registry"
           command: |
-            KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api
+            KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app
             echo "KO_DOCKER_REPO: $KO_DOCKER_REPO"
-            export IMAGE_NAME=$(ko build cmd/sample_app/main.go)
+            echo "export IMAGE_NAME=$(ko build cmd/sample_app/main.go)" >> $BASH_ENV
             echo "IMAGE_NAME: ${IMAGE_NAME}"
       - run:
           name: "Deploy to Cloud Run and release"
