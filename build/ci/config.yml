@@ -101,9 +101,6 @@ commands:
             echo "export GCP_PJ_ID=$(gcloud config get-value project)" >> $BASH_ENV
             echo "export GCP_REGION=$(gcloud config get-value compute/region)" >> $BASH_ENV
             echo "export GCP_ZONE=$(gcloud config get-value compute/zone)" >> $BASH_ENV
-            echo "GCP_PJ_ID: $GCP_PJ_ID"
-            echo "GCP_REGION: $GCP_REGION"
-            echo "GCP_ZONE: $GCP_ZONE"
 
   install-ko:
     description: "Install ko"
@@ -157,10 +154,7 @@ jobs:
       - run:
           name: "Build Docker image and push to Artifact Registry"
           command: |
-            export KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app
-            echo "KO_DOCKER_REPO: $KO_DOCKER_REPO"
-            echo "export IMAGE_NAME=$(ko build cmd/sample_app/main.go --bare)" >> $BASH_ENV
-            echo "IMAGE_NAME: ${IMAGE_NAME}"
+            echo "export IMAGE_NAME=$(KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app ko build cmd/sample_app/main.go --bare)" >> $BASH_ENV
       - run:
           name: "Deploy to Cloud Run and release"
           command: |
