@@ -169,7 +169,7 @@ workflows:
     jobs:
       - send-notification-workflow-start:
           workflow-name: "build-and-test"
-          requires:
+          filters:
             branches:
               ignore:
                 - master
