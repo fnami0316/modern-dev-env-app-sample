@@ -174,7 +174,23 @@ workflows:
       - build-image-and-deploy-and-release:
           requires:
             - build-and-test
+          filters:
+            branches:
+              only:
+                - master
       - send-notification-workflow-success:
           workflow-name: "build-and-test-and-deploy"
           requires:
             - build-image-and-deploy-and-release
+          filters:
+            branches:
+              only:
+                - master
+      - send-notification-workflow-success:
+          workflow-name: "build-and-test-and-deploy"
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              ignore:
+                - master
