@@ -98,9 +98,9 @@ commands:
     steps:
       - run:
           command: |
-            export GCP_PJ_ID=$(gcloud config get-value project)
-            export GCP_REGION=$(gcloud config get-value compute/region)
-            export GCP_ZONE=$(gcloud config get-value compute/zone)
+            echo "export GCP_PJ_ID=$(gcloud config get-value project)" >> $BASH_ENV
+            echo "export GCP_REGION=$(gcloud config get-value compute/region)" >> $BASH_ENV
+            echo "export GCP_ZONE=$(gcloud config get-value compute/zone)" >> $BASH_ENV
             echo "GCP_PJ_ID: $GCP_PJ_ID"
             echo "GCP_REGION: $GCP_REGION"
             echo "GCP_ZONE: $GCP_ZONE"
