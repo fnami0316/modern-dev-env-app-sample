@@ -150,6 +150,7 @@ jobs:
     description: "Build Docker image and push it to Artifact Registry. After that, deploy to Cloud Run and release"
     executor: go
     steps:
+      - checkout
       - install-ko
       - setup-gcp-cli
       - load-gcp-environment-values
@@ -172,7 +173,7 @@ workflows:
   build-and-test-and-deploy:
     jobs:
       - send-notification-workflow-start:
-          workflow-name: "build-and-test"
+          workflow-name: "build-and-test-and-deploy"
       - build-and-test:
           requires:
             - send-notification-workflow-start
@@ -180,6 +181,6 @@ workflows:
           requires:
             - build-and-test
       - send-notification-workflow-success:
-          workflow-name: "build-and-test"
+          workflow-name: "build-and-test-and-deploy"
           requires:
             - build-image-and-deploy-and-release
