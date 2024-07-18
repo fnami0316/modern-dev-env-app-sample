@@ -32,8 +32,8 @@ resource "google_cloud_run_v2_service" "api" {
     }
     containers {
       name = "go-application"
-      # イメージのURL(ダミー)
-      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      # イメージのURL
+      image = "${var.default_region}-docker.pkg.dev/${var.default_project_id}/api/sample_app:latest"
       resources {
         # 上限設定(CPU/メモリお互いに関係あり。以下参考)
         # - https://cloud.google.com/run/docs/configuring/cpu?hl=ja
@@ -73,4 +73,29 @@ resource "google_artifact_registry_repository" "run-image" {
   repository_id = "api"
   description = "Cloud Run services (API)のイメージを格納するArtifact Registryのリポジトリ"
   format        = "DOCKER"
+}
+
+# CircleCI関連
+# サービスアカウント
+resource "google_service_account" "circleci" {
+  account_id   = "circleci"
+  description  = "GCPの操作をするためのCircleCI用サービスアカウント"
+  display_name = "CircleCI Service Account"
+}
+
+# CircleCIのサービスアカウントに付与する事前定義ロール
+variable "circleci_roles" {
+  type = set(string)
+  default = [
+    "roles/run.developer",
+    "roles/artifactregistry.writer"
+  ]
+}
+
+# サービスアカウントにプロジェクトレベルでのロール付与
+resource "google_project_iam_member" "circleci" {
+  for_each = var.circleci_roles
+  project = var.default_project_id
+  role    = each.key
+  member  = "serviceAccount:${google_service_account.circleci.email}"
 }
