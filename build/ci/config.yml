@@ -164,33 +164,38 @@ jobs:
           message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
 
 workflows:
+  # masterブランチ以外
+  build-and-test:
+    jobs:
+      - send-notification-workflow-start:
+          workflow-name: "build-and-test"
+          requires:
+            branches:
+              ignore:
+                - master
+      - build-and-test:
+          requires:
+            - send-notification-workflow-start
+      - send-notification-workflow-success:
+          workflow-name: "build-and-test"
+          requires:
+            - build-and-test
+  # masterブランチ用(デプロイまで行う)
   build-and-test-and-deploy:
     jobs:
       - send-notification-workflow-start:
           workflow-name: "build-and-test-and-deploy"
+          filters:
+            branches:
+              only:
+                - master
       - build-and-test:
           requires:
             - send-notification-workflow-start
       - build-image-and-deploy-and-release:
           requires:
             - build-and-test
-          filters:
-            branches:
-              only:
-                - master
       - send-notification-workflow-success:
           workflow-name: "build-and-test-and-deploy"
           requires:
             - build-image-and-deploy-and-release
-          filters:
-            branches:
-              only:
-                - master
-      - send-notification-workflow-success:
-          workflow-name: "build-and-test-and-deploy"
-          requires:
-            - build-and-test
-          filters:
-            branches:
-              ignore:
-                - master
