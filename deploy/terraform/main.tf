@@ -88,6 +88,7 @@ variable "circleci_roles" {
   type = set(string)
   default = [
     "roles/run.developer",
+    "roles/iam.serviceAccountUser",
     "roles/artifactregistry.writer"
   ]
 }
