@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   go: circleci/go@1.11.0 # Goモジュールのダウンロード(キャッシュも使用)、go test実行を楽にする用
   slack: circleci/slack@4.13.3 # Slack通知用
+  gcp-cli: circleci/gcp-cli@3.2.1 # gcloud CLIのインストール、初期化用
 
 # 実行環境の定義
 executors:
@@ -67,12 +68,14 @@ commands:
                 }
               ]
             }
+
   go-mod-download:
     description: "Download Go modules with cache and save cache with Go Orb"
     steps:
       - go/load-cache
       - go/mod-download
       - go/save-cache
+
   go-test:
     description: "Run go test with Go Orb"
     steps:
@@ -80,6 +83,29 @@ commands:
           covermode: atomic
           failfast: true
           race: true
+
+  setup-gcp-cli:
+    description: "Install gcloud CLI and setup with environment name"
+    steps:
+      - gcp-cli/setup:
+          gcloud_service_key: GCLOUD_SERVICE_KEY
+          google_project_id: GOOGLE_PROJECT_ID
+          google_compute_region: GOOGLE_COMPUTE_REGION
+          google_compute_zone: GOOGLE_COMPUTE_ZONE
+
+  load-gcp-environment-values:
+    description: "Load GCP Environment Values as GCP_PJ_ID, GCP_REGION and GCP_ZONE. Note: setup-gcp-cli should be executed before this command"
+    steps:
+      - run:
+          command: |
+            echo "export GCP_PJ_ID=$(gcloud config get-value project)" >> $BASH_ENV
+            echo "export GCP_REGION=$(gcloud config get-value compute/region)" >> $BASH_ENV
+            echo "export GCP_ZONE=$(gcloud config get-value compute/zone)" >> $BASH_ENV
+
+  install-ko:
+    description: "Install ko"
+    steps:
+      - run: go install github.com/google/ko@latest
 
 jobs:
   send-notification-workflow-start:
@@ -92,6 +118,7 @@ jobs:
     steps:
       - send-notification-with-slack:
           message: "Workflow: << parameters.workflow-name >> Start"
+
   send-notification-workflow-success:
     description: "Send workflow success notification with Slack"
     parameters:
@@ -102,6 +129,7 @@ jobs:
     steps:
       - send-notification-with-slack:
           message: "Workflow: << parameters.workflow-name >> Success"
+
   build-and-test:
     executor: go
     steps:
@@ -114,17 +142,39 @@ jobs:
       - send-notification-with-slack:
           event: fail
           message: ":fire: CircleCI Job:${CIRCLE_JOB} (node${CIRCLE_NODE_INDEX}) failure ! :fire:"
-  # deploy: TODO
+
+  build-image-and-deploy-and-release:
+    description: "Build Docker image and push it to Artifact Registry. After that, deploy to Cloud Run and release"
+    executor: go
+    steps:
+      - checkout
+      - install-ko
+      - setup-gcp-cli
+      - load-gcp-environment-values
+      - run:
+          name: "Build Docker image and push to Artifact Registry"
+          command: |
+            echo "export IMAGE_NAME=$(KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app ko build cmd/sample_app/main.go --bare)" >> $BASH_ENV
+      - run:
+          name: "Deploy to Cloud Run and release"
+          command: |
+            gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION}
+      - send-notification-with-slack:
+          event: fail
+          message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
 
 workflows:
-  build-and-test:
+  build-and-test-and-deploy:
     jobs:
       - send-notification-workflow-start:
-          workflow-name: "build-and-test"
+          workflow-name: "build-and-test-and-deploy"
       - build-and-test:
           requires:
             - send-notification-workflow-start
-      - send-notification-workflow-success:
-          workflow-name: "build-and-test"
+      - build-image-and-deploy-and-release:
           requires:
             - build-and-test
+      - send-notification-workflow-success:
+          workflow-name: "build-and-test-and-deploy"
+          requires:
+            - build-image-and-deploy-and-release
