@@ -108,7 +108,7 @@ commands:
   install-ko:
     description: "Install ko"
     steps:
-      - run: go install github.com/google/ko
+      - run: go install github.com/google/ko:latest
 
 jobs:
   send-notification-workflow-start:
