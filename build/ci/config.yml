@@ -159,7 +159,7 @@ jobs:
           command: |
             KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app
             echo "KO_DOCKER_REPO: $KO_DOCKER_REPO"
-            echo "export IMAGE_NAME=$(ko build cmd/sample_app/main.go)" >> $BASH_ENV
+            echo "export IMAGE_NAME=$(ko build cmd/sample_app/main.go --bare)" >> $BASH_ENV
             echo "IMAGE_NAME: ${IMAGE_NAME}"
       - run:
           name: "Deploy to Cloud Run and release"
