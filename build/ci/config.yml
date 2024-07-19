@@ -165,14 +165,14 @@ jobs:
             - run:
                 name: "Deploy docker image to Cloud Run and release"
                 command: |
-                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION}
+                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --tag circleci-deploy
       - when:
             condition: << parameters.should_release >>
             steps:
                 - run:
                     name: "Deploy docker image to Cloud Run and release"
                     command: |
-                      gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic
+                      gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic --tag circleci-deploy
       - send-notification-with-slack:
           event: fail
           message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
