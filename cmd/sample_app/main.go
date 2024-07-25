@@ -5,11 +5,10 @@ import (
 	"log"
 	"net"
 
-	pb "modern-dev-env-app-sample/internal/sample_app/pb/api/proto"
-	"modern-dev-env-app-sample/internal/sample_app/service/sample"
+	infrarepo "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository"
+	"modern-dev-env-app-sample/internal/sample_app/presentation"
 
 	"github.com/kelseyhightower/envconfig"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -30,14 +29,22 @@ func main() {
 	// (grpc.Serverインスタンスのポインタが返ってくる)
 	grpcServer := grpc.NewServer()
 
+	// インフラ層にリポジトリ利用のためのセットアップを任せる
+	db, err := infrarepo.Setup(envVars.GCPProjectID, envVars.SpannerInstanceID, envVars.SpannerDatabaseID)
+	if err != nil {
+		log.Fatalf("failed to Setup(): %v", err)
+	}
+
 	// 3. gRPCサーバにサービスを登録
 	// Register<サービス名>Server(grpc.Serverのポインタ, <サービス名>Serverのポインタ)関数は、
 	// protocコマンド実行で生成された「<元になった.proroファイル名>_grpc.pb.go」内に自動で定義されている
 	// ここで登録されたサービスについてのみAPIが使えるようになる
-	pb.RegisterSampleServiceServer(grpcServer, &sample.SampleServiceServer{})
+	if err := presentation.RegisterRPCServices(grpcServer, db); err != nil {
+		log.Fatalf("failed to RegisterRPCServices(): %v", err)
+	}
 
 	// 4. gRPCサーバのServer Reflectionを有効にする
-	// (「grpc_cli」コマンドで、gRPCサーバに登録したサービスのRPCメソッドをシリアライズなしで実行可能になる)
+	// (「grpcurl」コマンドで、gRPCサーバに登録したサービスのRPCメソッドをシリアライズなしで実行可能になる)
 	reflection.Register(grpcServer)
 
 	// 5. gRPCサーバーを起動(指定したプロトコル・ポートのListenも開始)
@@ -47,7 +54,13 @@ func main() {
 // EnvironmentVariables 環境変数
 type EnvironmentVariables struct {
 	// Port リスンポート番号
-	Port int `default:"8080"`
+	Port int `envconfig:"GCP_PROJECT_ID" default:"8080"`
+	// GCPProjectID GCPプロジェクトID
+	GCPProjectID string `envconfig:"GCP_PROJECT_ID"`
+	// SpannerInstanceID SpannerインスタンスID
+	SpannerInstanceID string `envconfig:"SPANNER_INSTANCE_ID"`
+	// SpannerDatabaseID SpannerデータベースID
+	SpannerDatabaseID string `envconfig:"SPANNER_DATABASE_ID"`
 }
 
 // LoadEnvironmentVariables 環境変数を読み込む
