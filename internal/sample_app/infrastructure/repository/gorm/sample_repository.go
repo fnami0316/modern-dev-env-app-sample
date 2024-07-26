@@ -1,4 +1,4 @@
-package repository
+package gorm
 
 import (
 	"errors"
@@ -6,8 +6,10 @@ import (
 	"time"
 
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
-	domain "modern-dev-env-app-sample/internal/sample_app/domain/repository"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
+	"modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm/transaction"
+	domain "modern-dev-env-app-sample/internal/sample_app/usecase/repository"
+	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
 
 	"gorm.io/gorm"
 )
@@ -16,13 +18,22 @@ var _ domain.ISampleRepository = &SampleRepository{}
 
 // SampleRepository Sample集約リポジトリ
 type SampleRepository struct {
-	db *gorm.DB
+	con *gorm.DB
 }
 
-// NewSampleRepository SampleRepositoryのコンストラクタ
-func NewSampleRepository(db *gorm.DB) (*SampleRepository, error) {
+// CreateSampleRepository SampleRepositoryのファクトリ
+func CreateSampleRepository(iCon usecase.IConnection) (domain.ISampleRepository, error) {
+	con, err := transaction.Con(iCon)
+	if err != nil {
+		return nil, fmt.Errorf("failed to Con(): %w", err)
+	}
+	return newSampleRepository(con)
+}
+
+// newSampleRepository SampleRepositoryのコンストラクタ
+func newSampleRepository(con *gorm.DB) (*SampleRepository, error) {
 	sampleRepo := &SampleRepository{
-		db: db,
+		con: con,
 	}
 	if err := sampleRepo.validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate(): %w", err)
@@ -32,8 +43,8 @@ func NewSampleRepository(db *gorm.DB) (*SampleRepository, error) {
 
 // validate SampleRepositoryのバリデーション
 func (s *SampleRepository) validate() error {
-	if s.db == nil {
-		return errors.New("db is nil")
+	if s.con == nil {
+		return errors.New("con is nil")
 	}
 	return nil
 }
@@ -41,7 +52,7 @@ func (s *SampleRepository) validate() error {
 // Save 1件のSampleエンティティを保存
 // sampleがnilの場合は即エラー扱い
 // TODO: GORM固有のエラーをそのまま返していいものか。
-func (s *SampleRepository) Save(sampleEntity *entity.Sample) error {
+func (s *SampleRepository) Save(sampleEntity *entity.Sample, iTx usecase.ITransaction) error {
 	if sampleEntity == nil {
 		return errors.New("sampleEntity is nil")
 	}
@@ -49,7 +60,12 @@ func (s *SampleRepository) Save(sampleEntity *entity.Sample) error {
 	if err != nil {
 		return fmt.Errorf("failed to convEntityToGORM(): %w", err)
 	}
-	result := s.db.Save(sampleGORM)
+
+	conWithTx, err := transaction.ConWithTx(s.con, iTx)
+	if err != nil {
+		return fmt.Errorf("failed to conWithTx(): %w", err)
+	}
+	result := conWithTx.Save(sampleGORM)
 	if result.Error != nil {
 		return fmt.Errorf("failed to Save(): %w", result.Error)
 	}
@@ -58,13 +74,18 @@ func (s *SampleRepository) Save(sampleEntity *entity.Sample) error {
 
 // FindByIDs 指定したID群でSampleエンティティ群を取得
 // idsのサイズが0の場合は即エラー扱い
-func (s *SampleRepository) FindByIDs(ids []value.SampleID) ([]*entity.Sample, error) {
+func (s *SampleRepository) FindByIDs(ids []value.SampleID, iTx usecase.ITransaction) ([]*entity.Sample, error) {
 	if len(ids) == 0 {
 		return nil, errors.New("ids is empty")
 
 	}
 	sampleGORMs := make([]*SampleGORM, 0, len(ids))
-	result := s.db.Where("id IN ?", ids).Find(sampleGORMs)
+
+	conWithTx, err := transaction.ConWithTx(s.con, iTx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to conWithTx(): %w", err)
+	}
+	result := conWithTx.Where("id IN ?", ids).Find(sampleGORMs)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to Find(): %w", result.Error)
 	}
@@ -77,9 +98,13 @@ func (s *SampleRepository) FindByIDs(ids []value.SampleID) ([]*entity.Sample, er
 }
 
 // FindAll 全てのSampleエンティティ群を取得
-func (s *SampleRepository) FindAll() ([]*entity.Sample, error) {
+func (s *SampleRepository) FindAll(iTx usecase.ITransaction) ([]*entity.Sample, error) {
 	sampleGORMs := []*SampleGORM{}
-	result := s.db.Find(sampleGORMs)
+	conWithTx, err := transaction.ConWithTx(s.con, iTx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to conWithTx(): %w", err)
+	}
+	result := conWithTx.Find(sampleGORMs)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to Find(): %w", result.Error)
 	}
@@ -93,11 +118,15 @@ func (s *SampleRepository) FindAll() ([]*entity.Sample, error) {
 
 // Delete 1件のSampleエンティティを論理削除
 // sampleがnilの場合は即エラー扱い
-func (s *SampleRepository) Delete(sample *entity.Sample) error {
+func (s *SampleRepository) Delete(sample *entity.Sample, iTx usecase.ITransaction) error {
 	if sample == nil {
 		return errors.New("sample is nil")
 	}
-	s.db.Where("id IN ?", sample.ID()).Delete(&SampleGORM{})
+	conWithTx, err := transaction.ConWithTx(s.con, iTx)
+	if err != nil {
+		return fmt.Errorf("failed to conWithTx(): %w", err)
+	}
+	conWithTx.Where("id IN ?", sample.ID()).Delete(&SampleGORM{})
 	return nil
 }
 

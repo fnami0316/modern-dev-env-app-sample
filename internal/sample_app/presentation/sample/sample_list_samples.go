@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
-	"modern-dev-env-app-sample/internal/sample_app/infrastructure/repository"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
 	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/sample"
 )
@@ -20,14 +19,8 @@ func (s *SampleServiceServer) ListSamples(_ context.Context, req *pb.ListSamples
 		return nil, fmt.Errorf("failed to convertToListSamplesRequestForUseCase(): %w", err)
 	}
 
-	// ユースケースで使う分のリポジトリを生成
-	iSampleRepo, err := repository.NewSampleRepository(s.db)
-	if err != nil {
-		return nil, fmt.Errorf("failed to NewSampleRepository(): %w", err)
-	}
-
 	// ユースケースを処理する構造体を生成
-	useCase, err := usecase.NewListSamplesUseCase(iSampleRepo)
+	useCase, err := usecase.NewListSamplesUseCase(s.iSampleRepo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewListSamplesUseCase(): %w", err)
 	}

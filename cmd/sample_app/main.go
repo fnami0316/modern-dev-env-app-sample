@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	infrarepo "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository"
+	infrarepo "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm"
 	"modern-dev-env-app-sample/internal/sample_app/presentation"
 
 	"github.com/kelseyhightower/envconfig"
@@ -48,7 +48,9 @@ func main() {
 	reflection.Register(grpcServer)
 
 	// 5. gRPCサーバーを起動(指定したプロトコル・ポートのListenも開始)
-	grpcServer.Serve(portListener)
+	if err := grpcServer.Serve(portListener); err != nil {
+		log.Fatalf("failed to grpcServer.Serve(): %v", err)
+	}
 }
 
 // EnvironmentVariables 環境変数

@@ -1,4 +1,4 @@
-package repository
+package gorm
 
 import (
 	"fmt"
@@ -14,11 +14,16 @@ func Setup(gcpProjectID, spannerInstanceID, spannerDatabaseID string) (*gorm.DB,
 	db, err := gorm.Open(spannergorm.New(spannergorm.Config{
 		DriverName: "spanner",
 		DSN:        fmt.Sprintf("projects/%s/instances/%s/databases/%s", gcpProjectID, spannerInstanceID, spannerDatabaseID),
-	}), &gorm.Config{PrepareStmt: true})
+	}), &gorm.Config{
+		PrepareStmt:            true,
+		SkipDefaultTransaction: true,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to gorm.Open(): %w", err)
 	}
-	db.AutoMigrate(autoMigrateGORMs...)
+	if err := db.AutoMigrate(autoMigrateGORMs...); err != nil {
+		return nil, fmt.Errorf("failed to db.AutoMigrate(): %w", err)
+	}
 	return db, nil
 }
 

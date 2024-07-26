@@ -4,17 +4,17 @@ import (
 	"errors"
 	"fmt"
 
-	domain "modern-dev-env-app-sample/internal/sample_app/domain/repository"
+	domain "modern-dev-env-app-sample/internal/sample_app/usecase/repository"
 )
 
 // ListSamplesUseCase ユースケース: サンプルデータのリストを取得
 type ListSamplesUseCase struct {
-	iRepo domain.ISampleRepository
+	iSampleRepo domain.ISampleRepository
 }
 
 // NewListSamplesUseCase ListSamplesUseCaseのコンストラクタ
-func NewListSamplesUseCase(iRepo domain.ISampleRepository) (*ListSamplesUseCase, error) {
-	useCase := &ListSamplesUseCase{iRepo: iRepo}
+func NewListSamplesUseCase(iSampleRepo domain.ISampleRepository) (*ListSamplesUseCase, error) {
+	useCase := &ListSamplesUseCase{iSampleRepo: iSampleRepo}
 	if err := useCase.validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate(): %w", err)
 	}
@@ -23,7 +23,7 @@ func NewListSamplesUseCase(iRepo domain.ISampleRepository) (*ListSamplesUseCase,
 
 // Run ユースケース: サンプルデータのリストを取得 を実行
 func (l *ListSamplesUseCase) Run(req *ListSamplesRequest) (*ListSamplesResponse, error) {
-	samples, err := l.iRepo.FindByIDs(req.ids)
+	samples, err := l.iSampleRepo.FindByIDs(req.ids, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to FindSamples(): %w", err)
 	}
@@ -37,8 +37,8 @@ func (l *ListSamplesUseCase) Run(req *ListSamplesRequest) (*ListSamplesResponse,
 
 // validate ListSamplesUseCaseのバリデーション
 func (l *ListSamplesUseCase) validate() error {
-	if l.iRepo == nil {
-		return errors.New("iRepo is nil")
+	if l.iSampleRepo == nil {
+		return errors.New("iSampleRepo is nil")
 	}
 	return nil
 }
