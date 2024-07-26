@@ -19,14 +19,8 @@ func (s *SampleServiceServer) ListSamples(_ context.Context, req *pb.ListSamples
 		return nil, fmt.Errorf("failed to convertToListSamplesRequestForUseCase(): %w", err)
 	}
 
-	// ユースケースを処理する構造体を生成
-	useCase, err := usecase.NewListSamplesUseCase(s.iSampleRepo)
-	if err != nil {
-		return nil, fmt.Errorf("failed to NewListSamplesUseCase(): %w", err)
-	}
-
 	// ユースケースを実行
-	useCaseRes, err := useCase.Run(useCaseReq)
+	useCaseRes, err := s.listSamplesUseCase.Run(useCaseReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to Run(): %w", err)
 	}
