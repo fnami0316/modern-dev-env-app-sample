@@ -9,17 +9,15 @@ services:
   # Spanner エミュレータ起動後に流すスクリプト
   # 指定したプロジェクトID, インスタンスID, データベースIDのデータベースを作成する
   spanner-emulator-init-script:
-    image: google/cloud-sdk
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:alpine
     platform: linux/amd64
     command: >
-      bash -c 'gcloud config configurations create emulator;
+      bash -c 'gcloud config configurations create emulator || gcloud config configurations activate emulator &&
               gcloud config set auth/disable_credentials true &&
-              gcloud config set project $${GCP_PROJECT_ID} &&
-              gcloud config set api_endpoint_overrides/spanner $${SPANNER_EMULATOR_URL} --quiet&&
-              gcloud spanner instances create $${SPANNER_INSTANCE_ID} --config=emulator-config --description="Test Instance" --nodes=1 &&
-              gcloud spanner databases create $${SPANNER_DATABASE_ID} --instance=$${SPANNER_INSTANCE_ID}'
-    env_file:
-      - local.env
+              gcloud config set project ${GCP_PROJECT_ID} &&
+              gcloud config set api_endpoint_overrides/spanner ${SPANNER_EMULATOR_URL} --quiet&&
+              gcloud spanner instances create ${SPANNER_INSTANCE_ID} --config=emulator-config --description="Test Instance" --nodes=1 &&
+              gcloud spanner databases create ${SPANNER_DATABASE_ID} --instance=${SPANNER_INSTANCE_ID}'
     depends_on:
       - spanner-emulator
 
@@ -30,10 +28,8 @@ services:
       - spanner-emulator
     platform: linux/amd64
     entrypoint: tail -f /dev/null
-    env_file:
-      - local.env
     healthcheck:
-      test: "curl -f http://spanner-emulator:9020/v1/projects/local-project/instances/test-instance/databases/test-database || exit 1"
+      test: curl -f http://spanner-emulator:9020/v1/projects/${GCP_PROJECT_ID}/instances/${SPANNER_INSTANCE_ID}/databases/${SPANNER_DATABASE_ID}
       interval: 5s
       timeout: 10s
       retries: 10
@@ -47,8 +43,12 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - local.env
+      - .env
     tty: true
+    volumes:
+      - type: bind
+        source: ../../
+        target: /app/sample-app
     depends_on:
       spanner-emulator-healthcheck:
         condition: service_healthy
