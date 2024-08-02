@@ -55,7 +55,7 @@ COPY . .
 RUN go mod download
 
 # Goアプリケーション実行ファイルのビルド
-RUN go build -o sample_app ./cmd/sample_app/*.go
+RUN go build -o /sample_app ./cmd/sample_app/*.go
 
 # Goアプリケーションの実行
 CMD ["./sample_app"]
