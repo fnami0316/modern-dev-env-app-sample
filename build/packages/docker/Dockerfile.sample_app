@@ -58,4 +58,4 @@ RUN go mod download
 RUN go build -o /sample_app ./cmd/sample_app/*.go
 
 # Goアプリケーションの実行
-CMD ["./sample_app"]
+CMD ["/sample_app"]

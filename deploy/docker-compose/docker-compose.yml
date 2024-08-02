@@ -45,11 +45,10 @@ services:
     env_file:
       - .env
     tty: true
-#    volumes:
-#      - type: bind
-#        source: ../../
-#        target: /app/
-    command: tail -f /dev/null
+    volumes:
+      - type: bind
+        source: ../../
+        target: /app/
     depends_on:
       spanner-emulator-healthcheck:
         condition: service_healthy
