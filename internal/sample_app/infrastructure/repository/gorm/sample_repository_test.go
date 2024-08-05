@@ -19,6 +19,7 @@ import (
 )
 
 func TestCreateSampleRepository(t *testing.T) {
+	db := &gorm.DB{}
 	type args struct {
 		iCon usecase2.IConnection
 	}
@@ -31,10 +32,10 @@ func TestCreateSampleRepository(t *testing.T) {
 		{
 			name: "[OK]正常系",
 			args: args{
-				iCon: &infrastructure.GORMConnection{},
+				iCon: infrastructure.NewGORMConnection(db),
 			},
 			want: usecase.ISampleRepository(&SampleRepository{
-				con: &gorm.DB{},
+				con: db,
 			}),
 			wantErr: false,
 		},
