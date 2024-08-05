@@ -24,12 +24,18 @@ func (s SampleID) validate() error {
 	return nil
 }
 
+// ToInt64 int64に変換
+func (s SampleID) ToInt64() int64 {
+	return int64(s)
+}
+
 type SampleIDs []SampleID
 
+// ToInt64 int64に変換
 func (s SampleIDs) ToInt64() []int64 {
 	ids := make([]int64, len(s))
 	for i, id := range s {
-		ids[i] = int64(id)
+		ids[i] = id.ToInt64()
 	}
 	return ids
 }

@@ -72,6 +72,27 @@ func TestSampleID_validate(t *testing.T) {
 	}
 }
 
+func TestSampleID_ToInt64(t *testing.T) {
+	tests := []struct {
+		name string
+		s    SampleID
+		want int64
+	}{
+		{
+			name: "[OK]SampleIDをint64に変換できる",
+			s:    1,
+			want: 1,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s.ToInt64(); got != tt.want {
+				t.Errorf("ToInt64() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestSampleIDs_ToInt64(t *testing.T) {
 	tests := []struct {
 		name string
