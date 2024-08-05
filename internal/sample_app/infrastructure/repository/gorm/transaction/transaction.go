@@ -46,7 +46,7 @@ func (g *GORMTransaction) Tx() interface{} {
 }
 
 // ConWithTx トランザクションを考慮した*gorm.DBを取得
-// リポジトリの各GORMのデータ操作系メソッドを実行する際は、この結果をレシーバとして使うこと
+// GORMを使ったリポジトリの各データ操作系メソッドを実行する際は、この結果をレシーバとして使うこと
 func ConWithTx(con *gorm.DB, iTx usecase.ITransaction) (*gorm.DB, error) {
 	// トランザクションオブジェクトの実体を取得
 	conWithTx, err := tx(iTx)
