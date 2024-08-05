@@ -8,13 +8,13 @@ import (
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	"modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm/transaction"
-	domain "modern-dev-env-app-sample/internal/sample_app/usecase/repository"
+	usecase2 "modern-dev-env-app-sample/internal/sample_app/usecase/repository"
 	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
 
 	"gorm.io/gorm"
 )
 
-var _ domain.ISampleRepository = &SampleRepository{}
+var _ usecase2.ISampleRepository = &SampleRepository{}
 
 // SampleRepository Sample集約リポジトリ
 type SampleRepository struct {
@@ -22,7 +22,7 @@ type SampleRepository struct {
 }
 
 // CreateSampleRepository SampleRepositoryのファクトリ
-func CreateSampleRepository(iCon usecase.IConnection) (domain.ISampleRepository, error) {
+func CreateSampleRepository(iCon usecase.IConnection) (usecase2.ISampleRepository, error) {
 	con, err := transaction.Con(iCon)
 	if err != nil {
 		return nil, fmt.Errorf("failed to Con(): %w", err)
@@ -74,7 +74,7 @@ func (s *SampleRepository) Save(sampleEntity *entity.Sample, iTx usecase.ITransa
 
 // FindByIDs 指定したID群でSampleエンティティ群を取得
 // idsのサイズが0の場合は即エラー扱い
-func (s *SampleRepository) FindByIDs(ids []value.SampleID, iTx usecase.ITransaction) ([]*entity.Sample, error) {
+func (s *SampleRepository) FindByIDs(ids value.SampleIDs, iTx usecase.ITransaction) ([]*entity.Sample, error) {
 	if len(ids) == 0 {
 		return nil, errors.New("ids is empty")
 
@@ -85,7 +85,7 @@ func (s *SampleRepository) FindByIDs(ids []value.SampleID, iTx usecase.ITransact
 	if err != nil {
 		return nil, fmt.Errorf("failed to conWithTx(): %w", err)
 	}
-	result := conWithTx.Where("id IN ?", ids).Find(sampleGORMs)
+	result := conWithTx.Where("id IN ?", ids.ToInt64()).Find(sampleGORMs)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to Find(): %w", result.Error)
 	}
