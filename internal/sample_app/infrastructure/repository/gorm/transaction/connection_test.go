@@ -1,11 +1,14 @@
 package transaction
 
 import (
+	"fmt"
+	"os"
 	"reflect"
 	"testing"
 
 	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
 
+	spannergorm "github.com/googleapis/go-gorm-spanner"
 	"gorm.io/gorm"
 )
 
@@ -38,16 +41,42 @@ func TestNewGORMConnection(t *testing.T) {
 }
 
 func TestGORMConnection_Begin(t *testing.T) {
+	err := os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010")
+	if err != nil {
+		t.Fatal("failed to set env")
+	}
+	gcpProjectID := "local-project"
+	spannerInstanceID := "test-instance"
+	spannerDatabaseID := "test-database"
+	dsn := fmt.Sprintf("projects/%s/instances/%s/databases/%s", gcpProjectID, spannerInstanceID, spannerDatabaseID)
+	db, err := gorm.Open(spannergorm.New(spannergorm.Config{
+		DriverName: "spanner",
+		DSN:        dsn,
+	}), &gorm.Config{
+		PrepareStmt:            true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to gorm.Open(): %v", err)
+	}
+
 	type fields struct {
 		db *gorm.DB
 	}
 	tests := []struct {
 		name    string
 		fields  fields
-		want    usecase.ITransaction
+		wantNil bool
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "正常系",
+			fields: fields{
+				db: db,
+			},
+			wantNil: false,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -59,14 +88,33 @@ func TestGORMConnection_Begin(t *testing.T) {
 				t.Errorf("Begin() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Begin() got = %v, want %v", got, tt.want)
+			if (got != nil) == tt.wantNil {
+				t.Errorf("Begin() got = %v, wantNil %v", got, tt.wantNil)
 			}
 		})
 	}
 }
 
 func TestGORMConnection_Transaction(t *testing.T) {
+	err := os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010")
+	if err != nil {
+		t.Fatal("failed to set env")
+	}
+	gcpProjectID := "local-project"
+	spannerInstanceID := "test-instance"
+	spannerDatabaseID := "test-database"
+	dsn := fmt.Sprintf("projects/%s/instances/%s/databases/%s", gcpProjectID, spannerInstanceID, spannerDatabaseID)
+	db, err := gorm.Open(spannergorm.New(spannergorm.Config{
+		DriverName: "spanner",
+		DSN:        dsn,
+	}), &gorm.Config{
+		PrepareStmt:            true,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		t.Fatalf("failed to gorm.Open(): %v", err)
+	}
+
 	type fields struct {
 		db *gorm.DB
 	}
@@ -79,7 +127,18 @@ func TestGORMConnection_Transaction(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "正常系",
+			fields: fields{
+				db: db,
+			},
+			args: args{
+				f: func(iTx usecase.ITransaction) error {
+					return nil
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
