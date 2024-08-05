@@ -124,7 +124,7 @@ func (s *SampleRepository) Delete(sample *entity.Sample, iTx usecase.ITransactio
 	if err != nil {
 		return fmt.Errorf("failed to conWithTx(): %w", err)
 	}
-	conWithTx.Where("id IN ?", sample.ID()).Delete(&SampleGORM{})
+	conWithTx.Where("id = ?", sample.ID().ToInt64()).Delete(&SampleGORM{})
 	return nil
 }
 
