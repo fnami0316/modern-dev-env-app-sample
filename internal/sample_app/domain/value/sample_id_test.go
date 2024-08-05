@@ -1,6 +1,9 @@
 package value
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestNewSampleID(t *testing.T) {
 	type args struct {
@@ -64,6 +67,27 @@ func TestSampleID_validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.s.validate(); (err != nil) != tt.wantErr {
 				t.Errorf("validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestSampleIDs_ToInt64(t *testing.T) {
+	tests := []struct {
+		name string
+		s    SampleIDs
+		want []int64
+	}{
+		{
+			name: "[OK]SampleIDsをint64のスライスに変換できる",
+			s:    SampleIDs{1, 2, 3},
+			want: []int64{1, 2, 3},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s.ToInt64(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ToInt64() = %v, want %v", got, tt.want)
 			}
 		})
 	}

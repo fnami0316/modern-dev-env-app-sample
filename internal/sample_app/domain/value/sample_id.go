@@ -23,3 +23,13 @@ func (s SampleID) validate() error {
 	}
 	return nil
 }
+
+type SampleIDs []SampleID
+
+func (s SampleIDs) ToInt64() []int64 {
+	ids := make([]int64, len(s))
+	for i, id := range s {
+		ids[i] = int64(id)
+	}
+	return ids
+}
