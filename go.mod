@@ -3,6 +3,7 @@ module modern-dev-env-app-sample
 go 1.21.1
 
 require (
+	github.com/google/go-cmp v0.6.0
 	github.com/googleapis/go-gorm-spanner v1.2.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	google.golang.org/grpc v1.65.0
