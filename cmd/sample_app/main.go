@@ -11,7 +11,10 @@ import (
 
 func main() {
 	// 環境変数を読み込む
-	envVars := LoadEnvironmentVariables()
+	envVars, err := LoadEnvironmentVariables()
+	if err != nil {
+		log.Fatalf("failed to LoadEnvironmentVariables(): %v", err)
+	}
 
 	// インフラ層のインスタンスを生成
 	infrastructures, err := createInfrastructuresWithGORMSpanner(
