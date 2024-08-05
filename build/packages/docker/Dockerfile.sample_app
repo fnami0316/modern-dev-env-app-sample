@@ -39,22 +39,12 @@ FROM golang:1.21.1
 WORKDIR /app
 
 # プロジェクトのコピー
-# <A. ホスト側のパス(基準:ビルドコンテキストで指定したディレクトリ)> <B. コンテナ側のパス(基準:WORKDIR)>
-# で、ホスト側のA.配下のディレクトリ、ファイルをコンテナのB. ディレクトリ配下にコピーするという意味になる。
-# docker build時にアクセス可能なホスト側のファイル・ディレクトリという形。このスコープから外れたディレクトリ・ファイルには触れない。
-# 素のdockerの場合:
-#   ビルドコンテキストは、docker build -f <Dockerfileのパス> <コンテキストのパス> で指定できる。
-#   docker build のみだと、カレントディレクトリのDockerfile, コンテキストもカレントディレクトリとみなされる。
-# docker-composeの場合:
-#   docker-compose.ymlのcontextで指定する「docker-compose.ymlファイルが存在するディレクトリからの相対パス」で設定する(必須パラメータ)
-#   docker-compose upではどのdocker-compose.ymlを使うかを -f で指定できる。が、コマンドからコンテキストは設定できない。
-#   素のdocker buildコマンドとは違って、コマンド実行時のカレントディレクトリは関係なく、明示的な指定が求められる。
 COPY . .
 
 # 必要なGoモジュールをダウンロード
 RUN go mod download
 
-# Goアプリケーション実行ファイルのビルド
+# Goアプリケーション実行ファイルをビルドしてルートディレクトリに配置
 RUN go build -o /sample_app ./cmd/sample_app/*.go
 
 # Goアプリケーションの実行
