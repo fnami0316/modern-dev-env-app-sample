@@ -61,7 +61,7 @@ func ConWithTx(con *gorm.DB, iTx usecase.ITransaction) (*gorm.DB, error) {
 	return conWithTx, nil
 }
 
-// tx gorm.DBに変換したTxを取得する
+// tx *gorm.DB型に変換したTxを取得する
 func tx(iTx usecase.ITransaction) (*gorm.DB, error) {
 	if iTx == nil {
 		return nil, nil
