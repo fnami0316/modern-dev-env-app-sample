@@ -11,9 +11,10 @@ import (
 // TODO: 各リポジトリのインスタンス生成までここでやっちゃってもいいかも？
 func Setup(gcpProjectID, spannerInstanceID, spannerDatabaseID string) (*gorm.DB, error) {
 	// TODO: Spannerではオートマイグレーションを実行してもインターリーブ部分は反映ができないことに注意
+	dsn := fmt.Sprintf("projects/%s/instances/%s/databases/%s", gcpProjectID, spannerInstanceID, spannerDatabaseID)
 	db, err := gorm.Open(spannergorm.New(spannergorm.Config{
 		DriverName: "spanner",
-		DSN:        fmt.Sprintf("projects/%s/instances/%s/databases/%s", gcpProjectID, spannerInstanceID, spannerDatabaseID),
+		DSN:        dsn,
 	}), &gorm.Config{
 		PrepareStmt:            true,
 		SkipDefaultTransaction: true,
