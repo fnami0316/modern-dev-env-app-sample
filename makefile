@@ -13,6 +13,10 @@ docker-compose-up:
 # 全コンテナを削除
 docker-compose-down:
 	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} down
+# spanner-emulatorコンテナのみを削除
+docker-compose-down-spanner-emulator:
+	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} rm -fsv spanner-emulator
+
 # 全コンテナの状態を表示
 docker-compose-ps:
 	watch -n 0.05 'docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} ps -a --format "table {{.Service}}\t{{.Status}}"'
