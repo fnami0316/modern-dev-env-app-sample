@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
+	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository"
+	usecase2 "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	infrastructure "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm/transaction"
-	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository"
-	usecase2 "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"

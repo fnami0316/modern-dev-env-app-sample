@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
+	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 
 	spannergorm "github.com/googleapis/go-gorm-spanner"
 	"gorm.io/gorm"

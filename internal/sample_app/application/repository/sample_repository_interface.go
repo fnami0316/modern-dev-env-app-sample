@@ -1,9 +1,9 @@
 package repository
 
 import (
+	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
-	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
 )
 
 // ISampleRepository Sample集約リポジトリのインターフェース

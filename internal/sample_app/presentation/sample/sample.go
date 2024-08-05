@@ -4,20 +4,20 @@ import (
 	"errors"
 	"fmt"
 
+	usecase "modern-dev-env-app-sample/internal/sample_app/application/usecase/sample"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
-	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/sample"
 )
 
 // SampleServiceServer protocで自動生成されたSampleServiceServerのインターフェースをみたす構造体
 type SampleServiceServer struct {
-	listSamplesUseCase *usecase.ListSamplesUseCase
+	iListSamplesUseCase usecase.IListSamplesUseCase
 	pb.UnimplementedSampleServiceServer
 }
 
 // NewSampleServiceServer SampleServiceServerのコンストラクタ
-func NewSampleServiceServer(listSamplesUseCase *usecase.ListSamplesUseCase) (*SampleServiceServer, error) {
+func NewSampleServiceServer(iListSamplesUseCase usecase.IListSamplesUseCase) (*SampleServiceServer, error) {
 	sampleServiceServer := &SampleServiceServer{
-		listSamplesUseCase: listSamplesUseCase,
+		iListSamplesUseCase: iListSamplesUseCase,
 	}
 	if err := sampleServiceServer.validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate() :%w", err)
@@ -27,8 +27,8 @@ func NewSampleServiceServer(listSamplesUseCase *usecase.ListSamplesUseCase) (*Sa
 
 // validate SampleServiceServerのバリデーション
 func (s *SampleServiceServer) validate() error {
-	if s.listSamplesUseCase == nil {
-		return errors.New("listSamplesUseCase is nil")
+	if s.iListSamplesUseCase == nil {
+		return errors.New("iListSamplesUseCase is nil")
 	}
 	return nil
 }

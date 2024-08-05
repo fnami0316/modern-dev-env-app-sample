@@ -4,8 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	domain "modern-dev-env-app-sample/internal/sample_app/usecase/repository"
+	domain "modern-dev-env-app-sample/internal/sample_app/application/repository"
+	"modern-dev-env-app-sample/internal/sample_app/application/request/sample"
+	sample2 "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
 )
+
+var _ IListSamplesUseCase = &ListSamplesUseCase{}
 
 // ListSamplesUseCase ユースケース: サンプルデータのリストを取得
 type ListSamplesUseCase struct {
@@ -22,13 +26,13 @@ func NewListSamplesUseCase(iSampleRepo domain.ISampleRepository) (*ListSamplesUs
 }
 
 // Run ユースケース: サンプルデータのリストを取得 を実行
-func (l *ListSamplesUseCase) Run(req *ListSamplesRequest) (*ListSamplesResponse, error) {
-	samples, err := l.iSampleRepo.FindByIDs(req.ids, nil)
+func (l *ListSamplesUseCase) Run(req *sample.ListSamplesRequest) (*sample2.ListSamplesResponse, error) {
+	samples, err := l.iSampleRepo.FindByIDs(req.IDs(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to FindSamples(): %w", err)
 	}
 
-	res, err := NewListSamplesResponse(samples)
+	res, err := sample2.NewListSamplesResponse(samples)
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewListSamplesResponse(): %w", err)
 	}

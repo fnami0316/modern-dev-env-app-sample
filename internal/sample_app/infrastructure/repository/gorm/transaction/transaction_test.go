@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
+	"modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 
 	"gorm.io/gorm"
 )

@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"modern-dev-env-app-sample/internal/sample_app/application/request/sample"
+	sample2 "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
-	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/sample"
 )
 
 // ListSamples (protoc依存のRPCメソッド実装) サンプルデータのリストを取得
@@ -20,7 +21,7 @@ func (s *SampleServiceServer) ListSamples(_ context.Context, req *pb.ListSamples
 	}
 
 	// ユースケースを実行
-	useCaseRes, err := s.listSamplesUseCase.Run(useCaseReq)
+	useCaseRes, err := s.iListSamplesUseCase.Run(useCaseReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to Run(): %w", err)
 	}
@@ -34,7 +35,7 @@ func (s *SampleServiceServer) ListSamples(_ context.Context, req *pb.ListSamples
 }
 
 // convertToListSamplesRequestForUseCase protoc都合のListSamplesのリクエストパラメータ構造体をユースケース都合のものに変換
-func (s *SampleServiceServer) convertToListSamplesRequestForUseCase(pbReq *pb.ListSamplesRequest) (*usecase.ListSamplesRequest, error) {
+func (s *SampleServiceServer) convertToListSamplesRequestForUseCase(pbReq *pb.ListSamplesRequest) (*sample.ListSamplesRequest, error) {
 	// 各パラメータを値オブジェクトへ地道に変換
 	sampleIDs := make([]value.SampleID, len(pbReq.Ids))
 	for i, pbReqID := range pbReq.Ids {
@@ -46,7 +47,7 @@ func (s *SampleServiceServer) convertToListSamplesRequestForUseCase(pbReq *pb.Li
 	}
 
 	// ユースケース層都合のリクエストパラメータ構造体を生成
-	useCaseReq, err := usecase.NewListSamplesRequest(sampleIDs)
+	useCaseReq, err := sample.NewListSamplesRequest(sampleIDs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewListSamplesRequest(): %w", err)
 	}
@@ -54,7 +55,7 @@ func (s *SampleServiceServer) convertToListSamplesRequestForUseCase(pbReq *pb.Li
 }
 
 // convertToListSamplesResponseForProtoc ユースケース都合のListSamplesのレスポンスパラメータ構造体をprotoc都合のものに変換
-func (s *SampleServiceServer) convertToListSamplesResponseForProtoc(useCaseRes *usecase.ListSamplesResponse) (*pb.ListSamplesResponse, error) {
+func (s *SampleServiceServer) convertToListSamplesResponseForProtoc(useCaseRes *sample2.ListSamplesResponse) (*pb.ListSamplesResponse, error) {
 	// 各パラメータをprotoc都合の型に地道に変換
 	pbSamples := make([]*pb.Sample, len(useCaseRes.Samples()))
 	for i, sampleEntity := range useCaseRes.Samples() {

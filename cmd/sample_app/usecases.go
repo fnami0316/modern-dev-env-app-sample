@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"modern-dev-env-app-sample/internal/sample_app/usecase/sample"
+	"modern-dev-env-app-sample/internal/sample_app/application/usecase/sample"
 )
 
 // useCases 全ユースケースインスタンスをまとめた構造体

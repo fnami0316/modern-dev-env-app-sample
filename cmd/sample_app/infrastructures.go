@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository"
+	usecase2 "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 	infra "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm"
 	infra2 "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm/transaction"
-	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository"
-	usecase2 "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
 )
 
 // infrastructures インフラ層の全インスタンスをまとめた構造体

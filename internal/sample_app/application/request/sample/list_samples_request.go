@@ -25,3 +25,8 @@ func NewListSamplesRequest(ids []value.SampleID) (*ListSamplesRequest, error) {
 func (l *ListSamplesRequest) validate() error {
 	return nil
 }
+
+// IDs IDのリストを取得
+func (l *ListSamplesRequest) IDs() []value.SampleID {
+	return l.ids
+}

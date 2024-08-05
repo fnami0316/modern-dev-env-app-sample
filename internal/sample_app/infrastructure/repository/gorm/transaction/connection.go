@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	usecase "modern-dev-env-app-sample/internal/sample_app/usecase/repository/transaction"
+	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 
 	"gorm.io/gorm"
 )
