@@ -51,7 +51,6 @@ func (s *SampleRepository) validate() error {
 
 // Save 1件のSampleエンティティを保存
 // sampleがnilの場合は即エラー扱い
-// TODO: GORM固有のエラーをそのまま返していいものか。
 func (s *SampleRepository) Save(sampleEntity *entity.Sample, iTx usecase.ITransaction) error {
 	if sampleEntity == nil {
 		return errors.New("sampleEntity is nil")
@@ -77,7 +76,6 @@ func (s *SampleRepository) Save(sampleEntity *entity.Sample, iTx usecase.ITransa
 func (s *SampleRepository) FindByIDs(ids value.SampleIDs, iTx usecase.ITransaction) ([]*entity.Sample, error) {
 	if len(ids) == 0 {
 		return nil, errors.New("ids is empty")
-
 	}
 	sampleGORMs := make([]*SampleGORM, 0, len(ids))
 
@@ -85,7 +83,7 @@ func (s *SampleRepository) FindByIDs(ids value.SampleIDs, iTx usecase.ITransacti
 	if err != nil {
 		return nil, fmt.Errorf("failed to conWithTx(): %w", err)
 	}
-	result := conWithTx.Where("id IN ?", ids.ToInt64()).Find(sampleGORMs)
+	result := conWithTx.Where("id IN ?", ids.ToInt64()).Find(&sampleGORMs)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to Find(): %w", result.Error)
 	}
@@ -99,12 +97,12 @@ func (s *SampleRepository) FindByIDs(ids value.SampleIDs, iTx usecase.ITransacti
 
 // FindAll 全てのSampleエンティティ群を取得
 func (s *SampleRepository) FindAll(iTx usecase.ITransaction) ([]*entity.Sample, error) {
-	sampleGORMs := []*SampleGORM{}
+	sampleGORMs := make([]*SampleGORM, 0, 0)
 	conWithTx, err := transaction.ConWithTx(s.con, iTx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to conWithTx(): %w", err)
 	}
-	result := conWithTx.Find(sampleGORMs)
+	result := conWithTx.Find(&sampleGORMs)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to Find(): %w", result.Error)
 	}
