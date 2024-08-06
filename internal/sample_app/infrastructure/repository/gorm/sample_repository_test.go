@@ -5,7 +5,6 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"time"
 
 	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository"
 	usecase2 "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
@@ -665,11 +664,8 @@ func TestNewSampleGORM(t *testing.T) {
 				name: "name",
 			},
 			want: &SampleGORM{
-				ID:        "1",
-				Name:      "name",
-				CreatedAt: time.Time{},
-				UpdatedAt: time.Time{},
-				DeletedAt: gorm.DeletedAt{},
+				ID:   "1",
+				Name: "name",
 			},
 			wantErr: false,
 		},
@@ -690,11 +686,8 @@ func TestNewSampleGORM(t *testing.T) {
 
 func TestSampleGORM_validate(t *testing.T) {
 	type fields struct {
-		ID        string
-		Name      string
-		CreatedAt time.Time
-		UpdatedAt time.Time
-		DeletedAt gorm.DeletedAt
+		ID   string
+		Name string
 	}
 	tests := []struct {
 		name    string
@@ -710,11 +703,8 @@ func TestSampleGORM_validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &SampleGORM{
-				ID:        tt.fields.ID,
-				Name:      tt.fields.Name,
-				CreatedAt: tt.fields.CreatedAt,
-				UpdatedAt: tt.fields.UpdatedAt,
-				DeletedAt: tt.fields.DeletedAt,
+				ID:   tt.fields.ID,
+				Name: tt.fields.Name,
 			}
 			if err := s.validate(); (err != nil) != tt.wantErr {
 				t.Errorf("validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -754,7 +744,7 @@ func deleteAllSamplesForTest(t *testing.T) {
 	con.Unscoped().Where("1 = 1").Delete(&SampleGORM{})
 }
 
-// createGORMConForEmulator テスト用のGORMコネクションを生成
+// createGORMConForTest テスト用のGORMコネクションを生成
 // 利用するための前提条件
 // - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること

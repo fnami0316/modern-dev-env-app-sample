@@ -8,15 +8,18 @@ import (
 
 // useCases 全ユースケースインスタンスをまとめた構造体
 type useCases struct {
-	listSamplesUseCase *sample.ListSamplesUseCase
+	iListSamplesUseCase  sample.IListSamplesUseCase
+	iCreateSampleUseCase sample.ICreateSampleUseCase
 }
 
 // newUseCases コンストラクタ
 func newUseCases(
-	listSamplesUseCase *sample.ListSamplesUseCase,
+	iListSampleUseCase sample.IListSamplesUseCase,
+	iCreateSampleUseCase sample.ICreateSampleUseCase,
 ) (*useCases, error) {
 	return &useCases{
-		listSamplesUseCase: listSamplesUseCase,
+		iListSamplesUseCase:  iListSampleUseCase,
+		iCreateSampleUseCase: iCreateSampleUseCase,
 	}, nil
 }
 
@@ -29,5 +32,12 @@ func createUseCases(
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewListSamplesUseCase(): %w", err)
 	}
-	return newUseCases(listSamplesUseCase)
+	creatSampleUseCase, err := sample.NewCreateSampleUseCase(infras.iCon, infras.iSampleRepo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to NewCreateSampleUseCase(): %w", err)
+	}
+	return newUseCases(
+		listSamplesUseCase,
+		creatSampleUseCase,
+	)
 }

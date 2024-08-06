@@ -3,7 +3,6 @@ package gorm
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	usecase2 "modern-dev-env-app-sample/internal/sample_app/application/repository"
 	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
@@ -114,7 +113,7 @@ func (s *SampleRepository) FindAll(iTx usecase.ITransaction) ([]*entity.Sample, 
 	return sampleEntities, nil
 }
 
-// Delete 1件のSampleエンティティを論理削除
+// Delete 1件のSampleエンティティを物理削除
 // sampleがnilの場合は即エラー扱い
 func (s *SampleRepository) Delete(sample *entity.Sample, iTx usecase.ITransaction) error {
 	if sample == nil {
@@ -124,7 +123,7 @@ func (s *SampleRepository) Delete(sample *entity.Sample, iTx usecase.ITransactio
 	if err != nil {
 		return fmt.Errorf("failed to conWithTx(): %w", err)
 	}
-	conWithTx.Where("id = ?", sample.ID().ToString()).Delete(&SampleGORM{})
+	conWithTx.Unscoped().Where("id = ?", sample.ID().ToString()).Delete(&SampleGORM{})
 	return nil
 }
 
@@ -188,11 +187,8 @@ func (s *SampleRepository) convGORMListToEntityList(sampleGORMs []*SampleGORM) (
 
 // SampleGORM GORM経由での永続化に必要になる構造体
 type SampleGORM struct {
-	ID        string `gorm:"primarykey"`
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID   string `gorm:"primarykey"`
+	Name string
 }
 
 // NewSampleGORM SampleGORMのコンストラクタ

@@ -10,7 +10,8 @@ import (
 
 func TestNewSampleServiceServer(t *testing.T) {
 	type args struct {
-		iListSamplesUseCase usecase.IListSamplesUseCase
+		iListSamplesUseCase  usecase.IListSamplesUseCase
+		iCreateSampleUseCase usecase.ICreateSampleUseCase
 	}
 	tests := []struct {
 		name    string
@@ -21,10 +22,12 @@ func TestNewSampleServiceServer(t *testing.T) {
 		{
 			name: "[OK]全てのチェックを通過",
 			args: args{
-				iListSamplesUseCase: &usecase.ListSamplesUseCase{},
+				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
+				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
 			},
 			want: &SampleServiceServer{
-				iListSamplesUseCase: &usecase.ListSamplesUseCase{},
+				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
+				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
 			},
 			wantErr: false,
 		},
@@ -39,7 +42,10 @@ func TestNewSampleServiceServer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewSampleServiceServer(tt.args.iListSamplesUseCase)
+			got, err := NewSampleServiceServer(
+				tt.args.iListSamplesUseCase,
+				tt.args.iCreateSampleUseCase,
+			)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewSampleServiceServer() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -54,6 +60,7 @@ func TestNewSampleServiceServer(t *testing.T) {
 func TestSampleServiceServer_validate(t *testing.T) {
 	type fields struct {
 		iListSamplesUseCase              usecase.IListSamplesUseCase
+		iCreateSampleUseCase             usecase.ICreateSampleUseCase
 		UnimplementedSampleServiceServer pb.UnimplementedSampleServiceServer
 	}
 	tests := []struct {
@@ -64,14 +71,24 @@ func TestSampleServiceServer_validate(t *testing.T) {
 		{
 			name: "[OK]全てのチェックを通過",
 			fields: fields{
-				iListSamplesUseCase: &usecase.ListSamplesUseCase{},
+				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
+				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
 			},
 			wantErr: false,
 		},
 		{
 			name: "[NG]iListSamplesUseCaseがnilである場合エラー",
 			fields: fields{
-				iListSamplesUseCase: nil,
+				iListSamplesUseCase:  nil,
+				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "[NG]iCreateSampleUseCaseがnilである場合エラー",
+			fields: fields{
+				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
+				iCreateSampleUseCase: nil,
 			},
 			wantErr: true,
 		},
@@ -80,6 +97,7 @@ func TestSampleServiceServer_validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &SampleServiceServer{
 				iListSamplesUseCase:              tt.fields.iListSamplesUseCase,
+				iCreateSampleUseCase:             tt.fields.iCreateSampleUseCase,
 				UnimplementedSampleServiceServer: tt.fields.UnimplementedSampleServiceServer,
 			}
 			if err := s.validate(); (err != nil) != tt.wantErr {

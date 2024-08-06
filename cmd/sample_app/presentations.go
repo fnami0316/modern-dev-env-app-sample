@@ -11,15 +11,15 @@ import (
 
 // presentations 全プレゼンテーション層のインスタンスをまとめた構造体
 type presentations struct {
-	sampleServiceServer *sample.SampleServiceServer
+	iSampleServiceServer pb.SampleServiceServer
 }
 
 // newPresentations コンストラクタ
 func newPresentations(
-	sampleServiceServer *sample.SampleServiceServer,
+	sampleServiceServer pb.SampleServiceServer,
 ) *presentations {
 	return &presentations{
-		sampleServiceServer: sampleServiceServer,
+		iSampleServiceServer: sampleServiceServer,
 	}
 }
 
@@ -27,7 +27,10 @@ func newPresentations(
 func createPresentations(
 	useCases *useCases,
 ) (*presentations, error) {
-	sampleServiceServer, err := sample.NewSampleServiceServer(useCases.listSamplesUseCase)
+	sampleServiceServer, err := sample.NewSampleServiceServer(
+		useCases.iListSamplesUseCase,
+		useCases.iCreateSampleUseCase,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewSampleServiceServer(): %w", err)
 	}
@@ -39,5 +42,5 @@ func createPresentations(
 // protocコマンド実行で生成された「<元になった.proroファイル名>_grpc.pb.go」内に自動で定義されている
 // ここで登録されたRPCサービスについてのみ、gRPC通信が可能になる
 func (p *presentations) registerProtocServices(grpcServer *grpc.Server) {
-	pb.RegisterSampleServiceServer(grpcServer, p.sampleServiceServer)
+	pb.RegisterSampleServiceServer(grpcServer, p.iSampleServiceServer)
 }
