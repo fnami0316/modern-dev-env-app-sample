@@ -2,22 +2,74 @@ syntax = "proto3";
 
 package api;
 
-option go_package = "github.com/fnami0316/modern-dev-env-app-sample/internal/sample_app/pb";
+import "google/protobuf/empty.proto";
+
+option go_package = "internal/sample_app/presentation/pb";
 
 // サンプルサービス
+// 命名は Google APIの命名規則 https://cloud.google.com/apis/design/naming_convention?hl=ja に従ってみている
 service SampleService {
   // サンプルデータのリストを取得
   rpc ListSamples (ListSamplesRequest) returns (ListSamplesResponse) {}
+  // サンプルデータを追加
+  rpc CreateSample (CreateSampleRequest) returns (CreateSampleResponse) {}
+  // サンプルデータを更新
+  rpc UpdateSample (UpdateSampleRequest) returns (UpdateSampleResponse) {}
+  // サンプルデータを削除
+  rpc DeleteSample (DeleteSampleRequest) returns (DeleteSampleResponse) {}
 }
 
+// サンプルデータのリストを取得 のリクエスト
 message ListSamplesRequest {
+  // IDのリスト
+  repeated string ids = 1;
 }
 
+// サンプルデータのリストを取得 のレスポンス
 message ListSamplesResponse {
+  // サンプルデータのリスト
   repeated Sample samples = 1;
 }
 
+// サンプルデータを追加 のリクエスト
+message CreateSampleRequest {
+  // 名前
+  string name = 1;
+}
+
+// サンプルデータを追加 のレスポンス
+message CreateSampleResponse {
+  // サンプルデータ
+  Sample sample = 1;
+}
+
+// サンプルデータを更新 のリクエスト
+message UpdateSampleRequest {
+  // ID
+  string id = 1;
+  // 名前
+  string name = 2;
+}
+
+// サンプルデータを更新 のレスポンス
+message UpdateSampleResponse {
+  // サンプルデータ
+  Sample sample = 1;
+}
+
+// サンプルデータを削除 のリクエスト
+message DeleteSampleRequest {
+  // ID
+  string id = 1;
+}
+
+// サンプルデータを削除 のレスポンス
+message DeleteSampleResponse {
+  google.protobuf.Empty empty = 1;
+}
+
+// サンプルデータ
 message Sample {
-  int32 id = 1;
+  string id = 1;
   string name = 2;
 }

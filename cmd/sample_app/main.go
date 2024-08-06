@@ -5,25 +5,53 @@ import (
 	"log"
 	"net"
 
-	pb "modern-dev-env-app-sample/internal/sample_app/pb/api/proto"
-	"modern-dev-env-app-sample/internal/sample_app/service/sample"
-
-	"github.com/kelseyhightower/envconfig"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 func main() {
-	listenProtocol := "tcp"
-	envVars := LoadEnvironmentVariables()
+	// 環境変数を読み込む
+	envVars, err := LoadEnvironmentVariables()
+	if err != nil {
+		log.Fatalf("failed to LoadEnvironmentVariables(): %v", err)
+	}
 
+	// インフラ層のインスタンスを生成
+	infrastructures, err := createInfrastructuresWithGORMSpanner(
+		envVars.GCPProjectID,
+		envVars.SpannerInstanceID,
+		envVars.SpannerDatabaseID,
+	)
+	if err != nil {
+		log.Fatalf("failed to createInfrastructuresWithGORMSpanner(): %v", err)
+	}
+
+	// ユースケース層のインスタンスを生成
+	useCases, err := createUseCases(infrastructures)
+	if err != nil {
+		log.Fatalf("failed to createUseCases(): %v", err)
+	}
+
+	// プレゼンテーション層のインスタンスを生成
+	presentations, err := createPresentations(useCases)
+	if err != nil {
+		log.Fatalf("failed to createPresentations(): %v", err)
+	}
+
+	// gRPCサーバーの起動
+	if err := startGrpcServer(envVars.Port, presentations); err != nil {
+		log.Fatalf("failed to startGrpcServer(): %v", err)
+	}
+}
+
+// startGrpcServer gRPCサーバーの起動処理
+func startGrpcServer(port int, presentations *presentations) error {
 	// 1. 指定したプロトコル・ポートのListenerを作成
 	// (net.Listenerが返される。Listenerとはポートに対して聞き耳を立てる人である)。
-	portListener, err := net.Listen(listenProtocol, fmt.Sprintf(":%d", envVars.Port))
-	// Listenに失敗したならばプログラムを即終了
+	listenProtocol := "tcp"
+	portListener, err := net.Listen(listenProtocol, fmt.Sprintf(":%d", port))
 	if err != nil {
-		log.Fatalf("プロトコル:%v, ポート:%v のListener作成に失敗しました: %v", listenProtocol, envVars.Port, err)
+		return fmt.Errorf("プロトコル:%v, ポート:%v のListener作成に失敗しました: %w", listenProtocol, port, err)
 	}
 
 	// 2. gRPCサーバのインスタンスを生成
@@ -31,30 +59,15 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// 3. gRPCサーバにサービスを登録
-	// Register<サービス名>Server(grpc.Serverのポインタ, <サービス名>Serverのポインタ)関数は、
-	// protocコマンド実行で生成された「<元になった.proroファイル名>_grpc.pb.go」内に自動で定義されている
-	// ここで登録されたサービスについてのみAPIが使えるようになる
-	pb.RegisterSampleServiceServer(grpcServer, &sample.SampleServiceServer{})
+	presentations.registerProtocServices(grpcServer)
 
 	// 4. gRPCサーバのServer Reflectionを有効にする
-	// (「grpc_cli」コマンドで、gRPCサーバに登録したサービスのRPCメソッドをシリアライズなしで実行可能になる)
+	// (「grpcurl」コマンドで、gRPCサーバに登録したサービスのRPCメソッドをシリアライズなしで実行可能になる)
 	reflection.Register(grpcServer)
 
 	// 5. gRPCサーバーを起動(指定したプロトコル・ポートのListenも開始)
-	grpcServer.Serve(portListener)
-}
-
-// EnvironmentVariables 環境変数
-type EnvironmentVariables struct {
-	// Port リスンポート番号
-	Port int `default:"8080"`
-}
-
-// LoadEnvironmentVariables 環境変数を読み込む
-func LoadEnvironmentVariables() EnvironmentVariables {
-	var envVars EnvironmentVariables
-	if err := envconfig.Process("", &envVars); err != nil {
-		log.Fatalf("環境変数の読み込みに失敗しました: %v", err)
+	if err := grpcServer.Serve(portListener); err != nil {
+		return fmt.Errorf("failed to grpcServer.Serve(): %w", err)
 	}
-	return envVars
+	return nil
 }
