@@ -22,7 +22,7 @@ service SampleService {
 // サンプルデータのリストを取得 のリクエスト
 message ListSamplesRequest {
   // IDのリスト
-  repeated int64 ids = 1;
+  repeated string ids = 1;
 }
 
 // サンプルデータのリストを取得 のレスポンス
@@ -46,7 +46,7 @@ message CreateSampleResponse {
 // サンプルデータを更新 のリクエスト
 message UpdateSampleRequest {
   // ID
-  int64 id = 1;
+  string id = 1;
   // 名前
   string name = 2;
 }
@@ -60,7 +60,7 @@ message UpdateSampleResponse {
 // サンプルデータを削除 のリクエスト
 message DeleteSampleRequest {
   // ID
-  int64 id = 1;
+  string id = 1;
 }
 
 // サンプルデータを削除 のレスポンス
@@ -70,6 +70,6 @@ message DeleteSampleResponse {
 
 // サンプルデータ
 message Sample {
-  int64 id = 1;
+  string id = 1;
   string name = 2;
 }

@@ -14,6 +14,20 @@ type Sample struct {
 	name value.SampleName
 }
 
+// CreateDefaultSample デフォルトのSampleを生成するファクトリ
+// idは自動採番
+func CreateDefaultSample(name value.SampleName) (*Sample, error) {
+	id, err := value.CreateRandomSampleID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to CreateRandomSampleID(): %w", err)
+	}
+	sample, err := NewSample(id, name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to NewSample(): %w", err)
+	}
+	return sample, nil
+}
+
 // NewSample コンストラクタ
 func NewSample(id value.SampleID, name value.SampleName) (*Sample, error) {
 	s := &Sample{

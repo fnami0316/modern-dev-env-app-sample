@@ -68,3 +68,24 @@ func TestSampleName_validate(t *testing.T) {
 		})
 	}
 }
+
+func TestSampleName_ToString(t *testing.T) {
+	tests := []struct {
+		name string
+		s    SampleName
+		want string
+	}{
+		{
+			name: "[OK]SampleNameを文字列に変換できる",
+			s:    SampleName("name"),
+			want: "name",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s.ToString(); got != tt.want {
+				t.Errorf("ToString() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -20,3 +20,8 @@ func (s SampleName) validate() error {
 	}
 	return nil
 }
+
+// ToString SampleNameを文字列に変換
+func (s SampleName) ToString() string {
+	return string(s)
+}

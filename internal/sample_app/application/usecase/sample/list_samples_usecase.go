@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	domain "modern-dev-env-app-sample/internal/sample_app/application/repository"
+	usecase "modern-dev-env-app-sample/internal/sample_app/application/repository"
 	"modern-dev-env-app-sample/internal/sample_app/application/request/sample"
 	sample2 "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
 )
@@ -13,11 +13,11 @@ var _ IListSamplesUseCase = &ListSamplesUseCase{}
 
 // ListSamplesUseCase ユースケース: サンプルデータのリストを取得
 type ListSamplesUseCase struct {
-	iSampleRepo domain.ISampleRepository
+	iSampleRepo usecase.ISampleRepository
 }
 
 // NewListSamplesUseCase ListSamplesUseCaseのコンストラクタ
-func NewListSamplesUseCase(iSampleRepo domain.ISampleRepository) (*ListSamplesUseCase, error) {
+func NewListSamplesUseCase(iSampleRepo usecase.ISampleRepository) (*ListSamplesUseCase, error) {
 	useCase := &ListSamplesUseCase{iSampleRepo: iSampleRepo}
 	if err := useCase.validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate(): %w", err)

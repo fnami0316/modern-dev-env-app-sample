@@ -2,10 +2,55 @@ package sample
 
 import (
 	"reflect"
+	"slices"
+	"sort"
 	"testing"
 
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 )
+
+func TestCreateDefaultSample(t *testing.T) {
+	type args struct {
+		name value.SampleName
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *Sample
+		wantErr bool
+	}{
+		{
+			name: "[OK]ランダムなIDでインスタンスを生成できる",
+			args: args{
+				name: "name",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotSamples := make([]*Sample, 10)
+			for i := 0; i < 10; i++ {
+				got, err := CreateDefaultSample(tt.args.name)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("CreateDefaultSample() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				gotSamples[i] = got
+			}
+			sort.Slice(gotSamples, func(i, j int) bool {
+				a, b := gotSamples[i], gotSamples[j]
+				return a.ID() < b.ID()
+			})
+			compactedSamples := slices.CompactFunc(gotSamples, func(a, b *Sample) bool {
+				return a.ID() == b.ID()
+			})
+			if len(gotSamples) != len(compactedSamples) {
+				t.Errorf("CreateDefaultSample() is not Random got = %v,", gotSamples)
+			}
+		})
+	}
+}
 
 func TestNewSample(t *testing.T) {
 	type args struct {
@@ -21,11 +66,11 @@ func TestNewSample(t *testing.T) {
 		{
 			name: "[OK]バリデーションでエラーがない場合、インスタンスを生成できる",
 			args: args{
-				id:   1,
+				id:   "1",
 				name: "name",
 			},
 			want: &Sample{
-				id:   1,
+				id:   "1",
 				name: "name",
 			},
 		},
@@ -86,9 +131,9 @@ func TestSample_ID(t *testing.T) {
 		{
 			name: "[OK]IDを取得できる",
 			fields: fields{
-				id: 1,
+				id: "1",
 			},
-			want: 1,
+			want: "1",
 		},
 	}
 	for _, tt := range tests {
@@ -153,14 +198,14 @@ func TestSample_Update(t *testing.T) {
 		{
 			name: "[OK]バリデーションでエラーがない場合、更新後のフィールド値を持つインスタンスを生成できる",
 			fields: fields{
-				id:   1,
+				id:   "1",
 				name: "name",
 			},
 			args: args{
 				name: "updated name",
 			},
 			want: &Sample{
-				id:   1,
+				id:   "1",
 				name: "updated name",
 			},
 			wantErr: false,
@@ -202,14 +247,14 @@ func TestSample_update(t *testing.T) {
 		{
 			name: "[OK]バリデーションでエラーがない場合、更新後のフィールド値を持つインスタンスを生成できる",
 			fields: fields{
-				id:   1,
+				id:   "1",
 				name: "name",
 			},
 			args: args{
 				name: "updated name",
 			},
 			want: &Sample{
-				id:   1,
+				id:   "1",
 				name: "updated name",
 			},
 			wantErr: false,

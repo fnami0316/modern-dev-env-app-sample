@@ -60,8 +60,8 @@ func (s *SampleServiceServer) convertToListSamplesResponseForProtoc(useCaseRes *
 	pbSamples := make([]*pb.Sample, len(useCaseRes.Samples()))
 	for i, sampleEntity := range useCaseRes.Samples() {
 		pbSample := &pb.Sample{
-			Id:   int64(sampleEntity.ID()),
-			Name: string(sampleEntity.Name()),
+			Id:   sampleEntity.ID().ToString(),
+			Name: sampleEntity.Name().ToString(),
 		}
 		pbSamples[i] = pbSample
 	}

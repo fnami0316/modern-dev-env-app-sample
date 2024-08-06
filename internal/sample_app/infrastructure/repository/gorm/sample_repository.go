@@ -83,7 +83,7 @@ func (s *SampleRepository) FindByIDs(ids value.SampleIDs, iTx usecase.ITransacti
 	if err != nil {
 		return nil, fmt.Errorf("failed to conWithTx(): %w", err)
 	}
-	result := conWithTx.Where("id IN ?", ids.ToInt64()).Find(&sampleGORMs)
+	result := conWithTx.Where("id IN ?", ids.ToString()).Find(&sampleGORMs)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to Find(): %w", result.Error)
 	}
@@ -124,7 +124,7 @@ func (s *SampleRepository) Delete(sample *entity.Sample, iTx usecase.ITransactio
 	if err != nil {
 		return fmt.Errorf("failed to conWithTx(): %w", err)
 	}
-	conWithTx.Where("id = ?", sample.ID().ToInt64()).Delete(&SampleGORM{})
+	conWithTx.Where("id = ?", sample.ID().ToString()).Delete(&SampleGORM{})
 	return nil
 }
 
@@ -136,7 +136,7 @@ func (s *SampleRepository) convEntityToGORM(sampleEntity *entity.Sample) (*Sampl
 	}
 
 	sampleGORM, err := NewSampleGORM(
-		int64(sampleEntity.ID()),
+		sampleEntity.ID().ToString(),
 		string(sampleEntity.Name()),
 	)
 	if err != nil {
@@ -188,7 +188,7 @@ func (s *SampleRepository) convGORMListToEntityList(sampleGORMs []*SampleGORM) (
 
 // SampleGORM GORM経由での永続化に必要になる構造体
 type SampleGORM struct {
-	ID        int64 `gorm:"primarykey"`
+	ID        string `gorm:"primarykey"`
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -197,8 +197,7 @@ type SampleGORM struct {
 
 // NewSampleGORM SampleGORMのコンストラクタ
 // CreatedAt, UpdatedAt, DeletedAtはGORMが自動で設定するため、指定しない
-// TODO: IDは大丈夫なんだろうか
-func NewSampleGORM(id int64, name string) (*SampleGORM, error) {
+func NewSampleGORM(id string, name string) (*SampleGORM, error) {
 	sampleGORM := &SampleGORM{
 		ID:   id,
 		Name: name,

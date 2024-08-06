@@ -160,34 +160,34 @@ func TestSampleRepository_Save(t *testing.T) {
 		{
 			name: "[OK]指定したエンティティに相当するレコードがSampleテーブルに存在しない場合",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 2, "name2"),
+				newSampleGORMForTest(t, "2", "name2"),
 			},
 			fields: fields{
 				con: gormCon,
 			},
 			args: args{
-				sampleEntity: newSampleEntityForTest(t, 1, "name1"),
+				sampleEntity: newSampleEntityForTest(t, "1", "name1"),
 			},
 			wantSamples: []*entity.Sample{
-				newSampleEntityForTest(t, 1, "name1"),
+				newSampleEntityForTest(t, "1", "name1"),
 			},
 			wantErr: false,
 		},
 		{
 			name: "[OK]指定したエンティティに相当するレコードがSampleテーブルに存在する場合",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
 			},
 			fields: fields{
 				con: gormCon,
 			},
 			args: args{
-				sampleEntity: newSampleEntityForTest(t, 1, "nameX"),
+				sampleEntity: newSampleEntityForTest(t, "1", "nameX"),
 			},
 			wantSamples: []*entity.Sample{
-				newSampleEntityForTest(t, 1, "nameX"),
-				newSampleEntityForTest(t, 2, "name2"),
+				newSampleEntityForTest(t, "1", "nameX"),
+				newSampleEntityForTest(t, "2", "name2"),
 			},
 			wantErr: false,
 		},
@@ -245,35 +245,35 @@ func TestSampleRepository_FindByIDs(t *testing.T) {
 		{
 			name: "[OK]Sampleテーブルにレコードが存在かつ指定したIDのレコードが存在する場合、指定したIDのSampleエンティティ群を過不足なく取得できる",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
-				newSampleGORMForTest(t, 3, "name3"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
+				newSampleGORMForTest(t, "3", "name3"),
 			},
 			fields: fields{
 				con: createGORMConForTest(t),
 			},
 			args: args{
-				ids: []value.SampleID{1, 2},
+				ids: []value.SampleID{"1", "2"},
 				iTx: nil,
 			},
 			wantSamples: []*entity.Sample{
-				newSampleEntityForTest(t, 1, "name1"),
-				newSampleEntityForTest(t, 2, "name2"),
+				newSampleEntityForTest(t, "1", "name1"),
+				newSampleEntityForTest(t, "2", "name2"),
 			},
 			wantErr: false,
 		},
 		{
 			name: "[OK]Sampleテーブルにレコードが存在し、指定したIDのレコードがすべて存在しない場合、空スライスが返ってくる",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
-				newSampleGORMForTest(t, 3, "name3"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
+				newSampleGORMForTest(t, "3", "name3"),
 			},
 			fields: fields{
 				con: createGORMConForTest(t),
 			},
 			args: args{
-				ids: []value.SampleID{4, 5},
+				ids: []value.SampleID{"4", "5"},
 				iTx: nil,
 			},
 			wantSamples: []*entity.Sample{},
@@ -282,39 +282,39 @@ func TestSampleRepository_FindByIDs(t *testing.T) {
 		{
 			name: "[OK]Sampleテーブルにレコードが存在し、指定したIDのレコードの一部が存在しない場合、存在した分の空スライスが返ってくる",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
-				newSampleGORMForTest(t, 3, "name3"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
+				newSampleGORMForTest(t, "3", "name3"),
 			},
 			fields: fields{
 				con: createGORMConForTest(t),
 			},
 			args: args{
-				ids: []value.SampleID{3, 4},
+				ids: []value.SampleID{"3", "4"},
 				iTx: nil,
 			},
 			wantSamples: []*entity.Sample{
-				newSampleEntityForTest(t, 3, "name3"),
+				newSampleEntityForTest(t, "3", "name3"),
 			},
 			wantErr: false,
 		},
 		{
 			name: "[OK]Sampleテーブルにレコードが存在し、指定したIDが存在するレコードのものかつ重複している場合、重複は1つにまとめられて結果が返ってくる",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
-				newSampleGORMForTest(t, 3, "name3"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
+				newSampleGORMForTest(t, "3", "name3"),
 			},
 			fields: fields{
 				con: createGORMConForTest(t),
 			},
 			args: args{
-				ids: []value.SampleID{2, 3, 3}, // 3が重複
+				ids: []value.SampleID{"2", "3", "3"}, // 3が重複
 				iTx: nil,
 			},
 			wantSamples: []*entity.Sample{
-				newSampleEntityForTest(t, 2, "name2"),
-				newSampleEntityForTest(t, 3, "name3"), // id3で返ってくるのは1レコードのみ
+				newSampleEntityForTest(t, "2", "name2"),
+				newSampleEntityForTest(t, "3", "name3"), // id3で返ってくるのは1レコードのみ
 			},
 			wantErr: false,
 		},
@@ -325,7 +325,7 @@ func TestSampleRepository_FindByIDs(t *testing.T) {
 				con: createGORMConForTest(t),
 			},
 			args: args{
-				ids: []value.SampleID{1},
+				ids: []value.SampleID{"1"},
 				iTx: nil,
 			},
 			wantSamples: []*entity.Sample{},
@@ -334,9 +334,9 @@ func TestSampleRepository_FindByIDs(t *testing.T) {
 		{
 			name: "[NG]idsのサイズがゼロの場合エラー",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
-				newSampleGORMForTest(t, 3, "name3"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
+				newSampleGORMForTest(t, "3", "name3"),
 			},
 			fields: fields{
 				con: createGORMConForTest(t),
@@ -390,9 +390,9 @@ func TestSampleRepository_FindAll(t *testing.T) {
 		{
 			name: "[OK]Sampleテーブルにレコードが存在する場合、全てのSampleエンティティ群を過不足なく取得できる",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
-				newSampleGORMForTest(t, 3, "name3"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
+				newSampleGORMForTest(t, "3", "name3"),
 			},
 			fields: fields{
 				con: createGORMConForTest(t),
@@ -401,9 +401,9 @@ func TestSampleRepository_FindAll(t *testing.T) {
 				iTx: nil,
 			},
 			wantSamples: []*entity.Sample{
-				newSampleEntityForTest(t, 1, "name1"),
-				newSampleEntityForTest(t, 2, "name2"),
-				newSampleEntityForTest(t, 3, "name3"),
+				newSampleEntityForTest(t, "1", "name1"),
+				newSampleEntityForTest(t, "2", "name2"),
+				newSampleEntityForTest(t, "3", "name3"),
 			},
 			wantErr: false,
 		},
@@ -461,17 +461,17 @@ func TestSampleRepository_Delete(t *testing.T) {
 		{
 			name: "[OK]Sampleテーブルにレコードが存在し、指定したIDのレコードが存在する場合、指定したIDのSampleエンティティを削除できる",
 			setupSamples: []*SampleGORM{
-				newSampleGORMForTest(t, 1, "name1"),
-				newSampleGORMForTest(t, 2, "name2"),
+				newSampleGORMForTest(t, "1", "name1"),
+				newSampleGORMForTest(t, "2", "name2"),
 			},
 			fields: fields{
 				con: createGORMConForTest(t),
 			},
 			args: args{
-				sample: newSampleEntityForTest(t, 1, "name1"),
+				sample: newSampleEntityForTest(t, "1", "name1"),
 			},
 			wantSamples: []*entity.Sample{
-				newSampleEntityForTest(t, 2, "name2"),
+				newSampleEntityForTest(t, "2", "name2"),
 			},
 			wantErr: false,
 		},
@@ -516,10 +516,10 @@ func TestSampleRepository_convEntityToGORM(t *testing.T) {
 			name:   "[OK]SampleエンティティをSampleGORMへ変換できる",
 			fields: fields{},
 			args: args{
-				sampleEntity: newSampleEntityForTest(t, 1, "name"),
+				sampleEntity: newSampleEntityForTest(t, "1", "name"),
 			},
 			want: &SampleGORM{
-				ID:   1,
+				ID:   "1",
 				Name: "name",
 			},
 			wantErr: false,
@@ -569,9 +569,9 @@ func TestSampleRepository_convGORMToEntity(t *testing.T) {
 			name:   "[OK]正常系",
 			fields: fields{},
 			args: args{
-				sampleGORM: newSampleGORMForTest(t, 1, "name"),
+				sampleGORM: newSampleGORMForTest(t, "1", "name"),
 			},
-			want:    newSampleEntityForTest(t, 1, "name"),
+			want:    newSampleEntityForTest(t, "1", "name"),
 			wantErr: false,
 		},
 		{
@@ -620,13 +620,13 @@ func TestSampleRepository_convGORMListToEntityList(t *testing.T) {
 			fields: fields{},
 			args: args{
 				sampleGORMs: []*SampleGORM{
-					newSampleGORMForTest(t, 1, "name1"),
-					newSampleGORMForTest(t, 2, "name2"),
+					newSampleGORMForTest(t, "1", "name1"),
+					newSampleGORMForTest(t, "2", "name2"),
 				},
 			},
 			want: []*entity.Sample{
-				newSampleEntityForTest(t, 1, "name1"),
-				newSampleEntityForTest(t, 2, "name2"),
+				newSampleEntityForTest(t, "1", "name1"),
+				newSampleEntityForTest(t, "2", "name2"),
 			},
 		},
 	}
@@ -649,7 +649,7 @@ func TestSampleRepository_convGORMListToEntityList(t *testing.T) {
 
 func TestNewSampleGORM(t *testing.T) {
 	type args struct {
-		id   int64
+		id   string
 		name string
 	}
 	tests := []struct {
@@ -661,11 +661,11 @@ func TestNewSampleGORM(t *testing.T) {
 		{
 			name: "[OK]インスタンスを生成できる",
 			args: args{
-				id:   1,
+				id:   "1",
 				name: "name",
 			},
 			want: &SampleGORM{
-				ID:        1,
+				ID:        "1",
 				Name:      "name",
 				CreatedAt: time.Time{},
 				UpdatedAt: time.Time{},
@@ -690,7 +690,7 @@ func TestNewSampleGORM(t *testing.T) {
 
 func TestSampleGORM_validate(t *testing.T) {
 	type fields struct {
-		ID        int64
+		ID        string
 		Name      string
 		CreatedAt time.Time
 		UpdatedAt time.Time
@@ -784,7 +784,7 @@ func newSampleEntityForTest(t *testing.T, id value.SampleID, name value.SampleNa
 }
 
 // newSampleGORMForTest SampleGORMを生成(エラーはテスト失敗として扱う)
-func newSampleGORMForTest(t *testing.T, id int64, name string) *SampleGORM {
+func newSampleGORMForTest(t *testing.T, id string, name string) *SampleGORM {
 	sampleGORM, err := NewSampleGORM(id, name)
 	if err != nil {
 		t.Fatalf("failed to NewSampleGORM(): %v", err)

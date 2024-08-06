@@ -2,12 +2,44 @@ package value
 
 import (
 	"reflect"
+	"slices"
 	"testing"
 )
 
+func TestCreateRandomSampleID(t *testing.T) {
+	tests := []struct {
+		name    string
+		wantErr bool
+	}{
+		{
+			name:    "[OK]ランダムなSampleIDを生成できる",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotRandomSampleIDs := make([]SampleID, 10)
+			for i := 0; i < 10; i++ {
+				got, err := CreateRandomSampleID()
+				if (err != nil) != tt.wantErr {
+					t.Errorf("CreateRandomSampleID() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				gotRandomSampleIDs[i] = got
+			}
+
+			slices.Sort(gotRandomSampleIDs)
+			compactedIDs := slices.Compact(gotRandomSampleIDs)
+			if len(compactedIDs) != 10 {
+				t.Errorf("CreateRandomSampleID() is not Random got = %v,", gotRandomSampleIDs)
+			}
+		})
+	}
+}
+
 func TestNewSampleID(t *testing.T) {
 	type args struct {
-		id int64
+		id string
 	}
 	tests := []struct {
 		name    string
@@ -18,17 +50,17 @@ func TestNewSampleID(t *testing.T) {
 		{
 			name: "[OK]インスタンスを生成できる",
 			args: args{
-				id: 1,
+				id: "1",
 			},
-			want:    1,
+			want:    "1",
 			wantErr: false,
 		},
 		{
 			name: "[NG]validate()でエラー",
 			args: args{
-				id: 0,
+				id: "",
 			},
-			want:    0,
+			want:    "",
 			wantErr: true,
 		},
 	}
@@ -53,13 +85,13 @@ func TestSampleID_validate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "[NG]SampleID <= 0の場合",
-			s:       SampleID(0),
+			name:    "[NG]サイズが0の場合",
+			s:       "",
 			wantErr: true,
 		},
 		{
-			name:    "[OK]SampleID > 0 の場合OK",
-			s:       SampleID(1),
+			name:    "[OK]サイズが0より大きい場合OK",
+			s:       "x",
 			wantErr: false,
 		},
 	}
@@ -72,43 +104,43 @@ func TestSampleID_validate(t *testing.T) {
 	}
 }
 
-func TestSampleID_ToInt64(t *testing.T) {
+func TestSampleID_ToString(t *testing.T) {
 	tests := []struct {
 		name string
 		s    SampleID
-		want int64
+		want string
 	}{
 		{
-			name: "[OK]SampleIDをint64に変換できる",
-			s:    1,
-			want: 1,
+			name: "[OK]SampleIDをstringに変換できる",
+			s:    "x",
+			want: "x",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.s.ToInt64(); got != tt.want {
-				t.Errorf("ToInt64() = %v, want %v", got, tt.want)
+			if got := tt.s.ToString(); got != tt.want {
+				t.Errorf("ToString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestSampleIDs_ToInt64(t *testing.T) {
+func TestSampleIDs_ToString(t *testing.T) {
 	tests := []struct {
 		name string
 		s    SampleIDs
-		want []int64
+		want []string
 	}{
 		{
-			name: "[OK]SampleIDsをint64のスライスに変換できる",
-			s:    SampleIDs{1, 2, 3},
-			want: []int64{1, 2, 3},
+			name: "[OK]SampleIDsをstringのスライスに変換できる",
+			s:    SampleIDs{"x", "y", "z"},
+			want: []string{"x", "y", "z"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.s.ToInt64(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ToInt64() = %v, want %v", got, tt.want)
+			if got := tt.s.ToString(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ToString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
