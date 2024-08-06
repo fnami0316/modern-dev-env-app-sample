@@ -21,11 +21,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// サンプルデータのリストを取得 のリクエスト
 type ListSamplesRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// IDのリスト
 	Ids []int64 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 }
 
@@ -68,11 +70,13 @@ func (x *ListSamplesRequest) GetIds() []int64 {
 	return nil
 }
 
+// サンプルデータのリストを取得 のレスポンス
 type ListSamplesResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// サンプルデータのリスト
 	Samples []*Sample `protobuf:"bytes,1,rep,name=samples,proto3" json:"samples,omitempty"`
 }
 
@@ -115,11 +119,13 @@ func (x *ListSamplesResponse) GetSamples() []*Sample {
 	return nil
 }
 
+// サンプルデータを追加 のリクエスト
 type CreateSampleRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// 名前
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 }
 
@@ -162,19 +168,71 @@ func (x *CreateSampleRequest) GetName() string {
 	return ""
 }
 
+// サンプルデータを追加 のレスポンス
+type CreateSampleResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// サンプルデータ
+	Sample *Sample `protobuf:"bytes,1,opt,name=sample,proto3" json:"sample,omitempty"`
+}
+
+func (x *CreateSampleResponse) Reset() {
+	*x = CreateSampleResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_proto_sample_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreateSampleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateSampleResponse) ProtoMessage() {}
+
+func (x *CreateSampleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_sample_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateSampleResponse.ProtoReflect.Descriptor instead.
+func (*CreateSampleResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_sample_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateSampleResponse) GetSample() *Sample {
+	if x != nil {
+		return x.Sample
+	}
+	return nil
+}
+
+// サンプルデータを更新 のリクエスト
 type UpdateSampleRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id   int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// ID
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 名前
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 }
 
 func (x *UpdateSampleRequest) Reset() {
 	*x = UpdateSampleRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_sample_proto_msgTypes[3]
+		mi := &file_api_proto_sample_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -187,7 +245,7 @@ func (x *UpdateSampleRequest) String() string {
 func (*UpdateSampleRequest) ProtoMessage() {}
 
 func (x *UpdateSampleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_sample_proto_msgTypes[3]
+	mi := &file_api_proto_sample_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -200,7 +258,7 @@ func (x *UpdateSampleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSampleRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSampleRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_sample_proto_rawDescGZIP(), []int{3}
+	return file_api_proto_sample_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateSampleRequest) GetId() int64 {
@@ -217,18 +275,69 @@ func (x *UpdateSampleRequest) GetName() string {
 	return ""
 }
 
+// サンプルデータを更新 のレスポンス
+type UpdateSampleResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// サンプルデータ
+	Sample *Sample `protobuf:"bytes,1,opt,name=sample,proto3" json:"sample,omitempty"`
+}
+
+func (x *UpdateSampleResponse) Reset() {
+	*x = UpdateSampleResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_proto_sample_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateSampleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSampleResponse) ProtoMessage() {}
+
+func (x *UpdateSampleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_sample_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSampleResponse.ProtoReflect.Descriptor instead.
+func (*UpdateSampleResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_sample_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateSampleResponse) GetSample() *Sample {
+	if x != nil {
+		return x.Sample
+	}
+	return nil
+}
+
+// サンプルデータを削除 のリクエスト
 type DeleteSampleRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// ID
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
 func (x *DeleteSampleRequest) Reset() {
 	*x = DeleteSampleRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_sample_proto_msgTypes[4]
+		mi := &file_api_proto_sample_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -241,7 +350,7 @@ func (x *DeleteSampleRequest) String() string {
 func (*DeleteSampleRequest) ProtoMessage() {}
 
 func (x *DeleteSampleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_sample_proto_msgTypes[4]
+	mi := &file_api_proto_sample_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -254,7 +363,7 @@ func (x *DeleteSampleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSampleRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSampleRequest) Descriptor() ([]byte, []int) {
-	return file_api_proto_sample_proto_rawDescGZIP(), []int{4}
+	return file_api_proto_sample_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteSampleRequest) GetId() int64 {
@@ -264,6 +373,55 @@ func (x *DeleteSampleRequest) GetId() int64 {
 	return 0
 }
 
+// サンプルデータを削除 のレスポンス
+type DeleteSampleResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Empty *emptypb.Empty `protobuf:"bytes,1,opt,name=empty,proto3" json:"empty,omitempty"`
+}
+
+func (x *DeleteSampleResponse) Reset() {
+	*x = DeleteSampleResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_proto_sample_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteSampleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSampleResponse) ProtoMessage() {}
+
+func (x *DeleteSampleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_sample_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSampleResponse.ProtoReflect.Descriptor instead.
+func (*DeleteSampleResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_sample_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeleteSampleResponse) GetEmpty() *emptypb.Empty {
+	if x != nil {
+		return x.Empty
+	}
+	return nil
+}
+
+// サンプルデータ
 type Sample struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -276,7 +434,7 @@ type Sample struct {
 func (x *Sample) Reset() {
 	*x = Sample{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_proto_sample_proto_msgTypes[5]
+		mi := &file_api_proto_sample_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -289,7 +447,7 @@ func (x *Sample) String() string {
 func (*Sample) ProtoMessage() {}
 
 func (x *Sample) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_sample_proto_msgTypes[5]
+	mi := &file_api_proto_sample_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -302,7 +460,7 @@ func (x *Sample) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Sample.ProtoReflect.Descriptor instead.
 func (*Sample) Descriptor() ([]byte, []int) {
-	return file_api_proto_sample_proto_rawDescGZIP(), []int{5}
+	return file_api_proto_sample_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Sample) GetId() int64 {
@@ -334,36 +492,50 @@ var file_api_proto_sample_proto_rawDesc = []byte{
 	0x2e, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x07, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73,
 	0x22, 0x29, 0x0a, 0x13, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x39, 0x0a, 0x13, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02,
-	0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x25, 0x0a, 0x13, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
-	0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a,
-	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x22, 0x2c, 0x0a,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x3b, 0x0a, 0x14, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x23, 0x0a, 0x06, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65,
+	0x52, 0x06, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x22, 0x39, 0x0a, 0x13, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12,
+	0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e,
+	0x61, 0x6d, 0x65, 0x22, 0x3b, 0x0a, 0x14, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d,
+	0x70, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x23, 0x0a, 0x06, 0x73,
+	0x61, 0x6d, 0x70, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x06, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65,
+	0x22, 0x25, 0x0a, 0x13, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x22, 0x44, 0x0a, 0x14, 0x44, 0x65, 0x6c, 0x65, 0x74,
+	0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x2c, 0x0a, 0x05, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x52, 0x05, 0x65, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x2c, 0x0a,
 	0x06, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x32, 0x89, 0x02, 0x0a, 0x0d,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x32, 0xa8, 0x02, 0x0a, 0x0d,
 	0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x42, 0x0a,
 	0x0b, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73, 0x12, 0x17, 0x2e, 0x61,
 	0x70, 0x69, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x4c, 0x69, 0x73, 0x74,
 	0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x12, 0x37, 0x0a, 0x0c, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c,
+	0x00, 0x12, 0x45, 0x0a, 0x0c, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c,
 	0x65, 0x12, 0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x61,
-	0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0b, 0x2e, 0x61, 0x70,
-	0x69, 0x2e, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x22, 0x00, 0x12, 0x37, 0x0a, 0x0c, 0x55, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x12, 0x18, 0x2e, 0x61, 0x70, 0x69,
-	0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x0b, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x61, 0x6d, 0x70, 0x6c,
-	0x65, 0x22, 0x00, 0x12, 0x42, 0x0a, 0x0c, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x61, 0x6d,
-	0x70, 0x6c, 0x65, 0x12, 0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65,
-	0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e,
-	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
-	0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x42, 0x25, 0x5a, 0x23, 0x69, 0x6e, 0x74, 0x65, 0x72,
-	0x6e, 0x61, 0x6c, 0x2f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x5f, 0x61, 0x70, 0x70, 0x2f, 0x70,
-	0x72, 0x65, 0x73, 0x65, 0x6e, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x70, 0x62, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x45, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x12, 0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53,
+	0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x45, 0x0a, 0x0c, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x12,
+	0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70,
+	0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x25, 0x5a, 0x23, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e,
+	0x61, 0x6c, 0x2f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x5f, 0x61, 0x70, 0x70, 0x2f, 0x70, 0x72,
+	0x65, 0x73, 0x65, 0x6e, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -378,31 +550,37 @@ func file_api_proto_sample_proto_rawDescGZIP() []byte {
 	return file_api_proto_sample_proto_rawDescData
 }
 
-var file_api_proto_sample_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_api_proto_sample_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_api_proto_sample_proto_goTypes = []interface{}{
-	(*ListSamplesRequest)(nil),  // 0: api.ListSamplesRequest
-	(*ListSamplesResponse)(nil), // 1: api.ListSamplesResponse
-	(*CreateSampleRequest)(nil), // 2: api.CreateSampleRequest
-	(*UpdateSampleRequest)(nil), // 3: api.UpdateSampleRequest
-	(*DeleteSampleRequest)(nil), // 4: api.DeleteSampleRequest
-	(*Sample)(nil),              // 5: api.Sample
-	(*emptypb.Empty)(nil),       // 6: google.protobuf.Empty
+	(*ListSamplesRequest)(nil),   // 0: api.ListSamplesRequest
+	(*ListSamplesResponse)(nil),  // 1: api.ListSamplesResponse
+	(*CreateSampleRequest)(nil),  // 2: api.CreateSampleRequest
+	(*CreateSampleResponse)(nil), // 3: api.CreateSampleResponse
+	(*UpdateSampleRequest)(nil),  // 4: api.UpdateSampleRequest
+	(*UpdateSampleResponse)(nil), // 5: api.UpdateSampleResponse
+	(*DeleteSampleRequest)(nil),  // 6: api.DeleteSampleRequest
+	(*DeleteSampleResponse)(nil), // 7: api.DeleteSampleResponse
+	(*Sample)(nil),               // 8: api.Sample
+	(*emptypb.Empty)(nil),        // 9: google.protobuf.Empty
 }
 var file_api_proto_sample_proto_depIdxs = []int32{
-	5, // 0: api.ListSamplesResponse.samples:type_name -> api.Sample
-	0, // 1: api.SampleService.ListSamples:input_type -> api.ListSamplesRequest
-	2, // 2: api.SampleService.CreateSample:input_type -> api.CreateSampleRequest
-	3, // 3: api.SampleService.UpdateSample:input_type -> api.UpdateSampleRequest
-	4, // 4: api.SampleService.DeleteSample:input_type -> api.DeleteSampleRequest
-	1, // 5: api.SampleService.ListSamples:output_type -> api.ListSamplesResponse
-	5, // 6: api.SampleService.CreateSample:output_type -> api.Sample
-	5, // 7: api.SampleService.UpdateSample:output_type -> api.Sample
-	6, // 8: api.SampleService.DeleteSample:output_type -> google.protobuf.Empty
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 0: api.ListSamplesResponse.samples:type_name -> api.Sample
+	8, // 1: api.CreateSampleResponse.sample:type_name -> api.Sample
+	8, // 2: api.UpdateSampleResponse.sample:type_name -> api.Sample
+	9, // 3: api.DeleteSampleResponse.empty:type_name -> google.protobuf.Empty
+	0, // 4: api.SampleService.ListSamples:input_type -> api.ListSamplesRequest
+	2, // 5: api.SampleService.CreateSample:input_type -> api.CreateSampleRequest
+	4, // 6: api.SampleService.UpdateSample:input_type -> api.UpdateSampleRequest
+	6, // 7: api.SampleService.DeleteSample:input_type -> api.DeleteSampleRequest
+	1, // 8: api.SampleService.ListSamples:output_type -> api.ListSamplesResponse
+	3, // 9: api.SampleService.CreateSample:output_type -> api.CreateSampleResponse
+	5, // 10: api.SampleService.UpdateSample:output_type -> api.UpdateSampleResponse
+	7, // 11: api.SampleService.DeleteSample:output_type -> api.DeleteSampleResponse
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_sample_proto_init() }
@@ -448,7 +626,7 @@ func file_api_proto_sample_proto_init() {
 			}
 		}
 		file_api_proto_sample_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateSampleRequest); i {
+			switch v := v.(*CreateSampleResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -460,7 +638,7 @@ func file_api_proto_sample_proto_init() {
 			}
 		}
 		file_api_proto_sample_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DeleteSampleRequest); i {
+			switch v := v.(*UpdateSampleRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -472,6 +650,42 @@ func file_api_proto_sample_proto_init() {
 			}
 		}
 		file_api_proto_sample_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateSampleResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_proto_sample_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteSampleRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_proto_sample_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteSampleResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_proto_sample_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Sample); i {
 			case 0:
 				return &v.state
@@ -490,7 +704,7 @@ func file_api_proto_sample_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_proto_sample_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

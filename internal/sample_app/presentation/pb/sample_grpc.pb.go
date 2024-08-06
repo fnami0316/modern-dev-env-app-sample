@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -26,11 +25,11 @@ type SampleServiceClient interface {
 	// サンプルデータのリストを取得
 	ListSamples(ctx context.Context, in *ListSamplesRequest, opts ...grpc.CallOption) (*ListSamplesResponse, error)
 	// サンプルデータを追加
-	CreateSample(ctx context.Context, in *CreateSampleRequest, opts ...grpc.CallOption) (*Sample, error)
+	CreateSample(ctx context.Context, in *CreateSampleRequest, opts ...grpc.CallOption) (*CreateSampleResponse, error)
 	// サンプルデータを更新
-	UpdateSample(ctx context.Context, in *UpdateSampleRequest, opts ...grpc.CallOption) (*Sample, error)
+	UpdateSample(ctx context.Context, in *UpdateSampleRequest, opts ...grpc.CallOption) (*UpdateSampleResponse, error)
 	// サンプルデータを削除
-	DeleteSample(ctx context.Context, in *DeleteSampleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteSample(ctx context.Context, in *DeleteSampleRequest, opts ...grpc.CallOption) (*DeleteSampleResponse, error)
 }
 
 type sampleServiceClient struct {
@@ -50,8 +49,8 @@ func (c *sampleServiceClient) ListSamples(ctx context.Context, in *ListSamplesRe
 	return out, nil
 }
 
-func (c *sampleServiceClient) CreateSample(ctx context.Context, in *CreateSampleRequest, opts ...grpc.CallOption) (*Sample, error) {
-	out := new(Sample)
+func (c *sampleServiceClient) CreateSample(ctx context.Context, in *CreateSampleRequest, opts ...grpc.CallOption) (*CreateSampleResponse, error) {
+	out := new(CreateSampleResponse)
 	err := c.cc.Invoke(ctx, "/api.SampleService/CreateSample", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -59,8 +58,8 @@ func (c *sampleServiceClient) CreateSample(ctx context.Context, in *CreateSample
 	return out, nil
 }
 
-func (c *sampleServiceClient) UpdateSample(ctx context.Context, in *UpdateSampleRequest, opts ...grpc.CallOption) (*Sample, error) {
-	out := new(Sample)
+func (c *sampleServiceClient) UpdateSample(ctx context.Context, in *UpdateSampleRequest, opts ...grpc.CallOption) (*UpdateSampleResponse, error) {
+	out := new(UpdateSampleResponse)
 	err := c.cc.Invoke(ctx, "/api.SampleService/UpdateSample", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -68,8 +67,8 @@ func (c *sampleServiceClient) UpdateSample(ctx context.Context, in *UpdateSample
 	return out, nil
 }
 
-func (c *sampleServiceClient) DeleteSample(ctx context.Context, in *DeleteSampleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *sampleServiceClient) DeleteSample(ctx context.Context, in *DeleteSampleRequest, opts ...grpc.CallOption) (*DeleteSampleResponse, error) {
+	out := new(DeleteSampleResponse)
 	err := c.cc.Invoke(ctx, "/api.SampleService/DeleteSample", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,11 +83,11 @@ type SampleServiceServer interface {
 	// サンプルデータのリストを取得
 	ListSamples(context.Context, *ListSamplesRequest) (*ListSamplesResponse, error)
 	// サンプルデータを追加
-	CreateSample(context.Context, *CreateSampleRequest) (*Sample, error)
+	CreateSample(context.Context, *CreateSampleRequest) (*CreateSampleResponse, error)
 	// サンプルデータを更新
-	UpdateSample(context.Context, *UpdateSampleRequest) (*Sample, error)
+	UpdateSample(context.Context, *UpdateSampleRequest) (*UpdateSampleResponse, error)
 	// サンプルデータを削除
-	DeleteSample(context.Context, *DeleteSampleRequest) (*emptypb.Empty, error)
+	DeleteSample(context.Context, *DeleteSampleRequest) (*DeleteSampleResponse, error)
 	mustEmbedUnimplementedSampleServiceServer()
 }
 
@@ -99,13 +98,13 @@ type UnimplementedSampleServiceServer struct {
 func (UnimplementedSampleServiceServer) ListSamples(context.Context, *ListSamplesRequest) (*ListSamplesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSamples not implemented")
 }
-func (UnimplementedSampleServiceServer) CreateSample(context.Context, *CreateSampleRequest) (*Sample, error) {
+func (UnimplementedSampleServiceServer) CreateSample(context.Context, *CreateSampleRequest) (*CreateSampleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSample not implemented")
 }
-func (UnimplementedSampleServiceServer) UpdateSample(context.Context, *UpdateSampleRequest) (*Sample, error) {
+func (UnimplementedSampleServiceServer) UpdateSample(context.Context, *UpdateSampleRequest) (*UpdateSampleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateSample not implemented")
 }
-func (UnimplementedSampleServiceServer) DeleteSample(context.Context, *DeleteSampleRequest) (*emptypb.Empty, error) {
+func (UnimplementedSampleServiceServer) DeleteSample(context.Context, *DeleteSampleRequest) (*DeleteSampleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSample not implemented")
 }
 func (UnimplementedSampleServiceServer) mustEmbedUnimplementedSampleServiceServer() {}

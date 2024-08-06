@@ -12,34 +12,63 @@ service SampleService {
   // サンプルデータのリストを取得
   rpc ListSamples (ListSamplesRequest) returns (ListSamplesResponse) {}
   // サンプルデータを追加
-  rpc CreateSample (CreateSampleRequest) returns (Sample) {}
+  rpc CreateSample (CreateSampleRequest) returns (CreateSampleResponse) {}
   // サンプルデータを更新
-  rpc UpdateSample (UpdateSampleRequest) returns (Sample) {}
+  rpc UpdateSample (UpdateSampleRequest) returns (UpdateSampleResponse) {}
   // サンプルデータを削除
-  rpc DeleteSample (DeleteSampleRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteSample (DeleteSampleRequest) returns (DeleteSampleResponse) {}
 }
 
+// サンプルデータのリストを取得 のリクエスト
 message ListSamplesRequest {
+  // IDのリスト
   repeated int64 ids = 1;
 }
 
+// サンプルデータのリストを取得 のレスポンス
 message ListSamplesResponse {
+  // サンプルデータのリスト
   repeated Sample samples = 1;
 }
 
+// サンプルデータを追加 のリクエスト
 message CreateSampleRequest {
+  // 名前
   string name = 1;
 }
 
+// サンプルデータを追加 のレスポンス
+message CreateSampleResponse {
+  // サンプルデータ
+  Sample sample = 1;
+}
+
+// サンプルデータを更新 のリクエスト
 message UpdateSampleRequest {
+  // ID
   int64 id = 1;
+  // 名前
   string name = 2;
 }
 
+// サンプルデータを更新 のレスポンス
+message UpdateSampleResponse {
+  // サンプルデータ
+  Sample sample = 1;
+}
+
+// サンプルデータを削除 のリクエスト
 message DeleteSampleRequest {
+  // ID
   int64 id = 1;
 }
 
+// サンプルデータを削除 のレスポンス
+message DeleteSampleResponse {
+  google.protobuf.Empty empty = 1;
+}
+
+// サンプルデータ
 message Sample {
   int64 id = 1;
   string name = 2;
