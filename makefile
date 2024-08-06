@@ -1,5 +1,13 @@
 local-dev-env-docker-compose-file := deploy/docker-compose/docker-compose.yml
 local-dev-env-docker-compose-project := sample_app
+proto_dir := ./api/proto
+
+# .protoからGolang向けのgRPCコードを生成
+protoc:
+	protoc \
+		--go_out=. \
+		--go-grpc_out=. \
+		$(proto_dir)/*.proto
 
 # ローカル環境のdocker-composeコマンドエイリアス
 # 全コンテナをイメージのビルドから始めて再起動
@@ -16,7 +24,6 @@ docker-compose-down:
 # spanner-emulatorコンテナのみを削除
 docker-compose-down-spanner-emulator:
 	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} rm -fsv spanner-emulator
-
 # 全コンテナの状態を表示
 docker-compose-ps:
 	watch -n 0.05 'docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} ps -a --format "table {{.Service}}\t{{.Status}}"'
