@@ -1,6 +1,10 @@
 package sample
 
-import entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
+import (
+	"fmt"
+
+	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
+)
 
 // CreateSampleResponse ユースケース: サンプルデータを追加 のレスポンスパラメータ
 type CreateSampleResponse struct {
@@ -19,6 +23,9 @@ func NewCreateSampleResponse(sample *entity.Sample) (*CreateSampleResponse, erro
 
 // validate バリデーション
 func (c *CreateSampleResponse) validate() error {
+	if c.sample == nil {
+		return fmt.Errorf("sample is nil")
+	}
 	return nil
 }
 

@@ -2,7 +2,7 @@ package sample
 
 import "modern-dev-env-app-sample/internal/sample_app/domain/value"
 
-// CreateSampleRequest ユースケース: サンプルデータを更新 のリクエストパラメータ
+// CreateSampleRequest ユースケース: サンプルデータを追加 のリクエストパラメータ
 type CreateSampleRequest struct {
 	// name 名前
 	name value.SampleName

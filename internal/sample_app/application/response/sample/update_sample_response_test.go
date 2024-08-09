@@ -7,14 +7,14 @@ import (
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 )
 
-func TestNewCreateSampleResponse(t *testing.T) {
+func TestNewUpdateSampleResponse(t *testing.T) {
 	type args struct {
 		sample *entity.Sample
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *CreateSampleResponse
+		want    *UpdateSampleResponse
 		wantErr bool
 	}{
 		{
@@ -22,7 +22,7 @@ func TestNewCreateSampleResponse(t *testing.T) {
 			args: args{
 				sample: &entity.Sample{},
 			},
-			want: &CreateSampleResponse{
+			want: &UpdateSampleResponse{
 				sample: &entity.Sample{},
 			},
 			wantErr: false,
@@ -38,19 +38,19 @@ func TestNewCreateSampleResponse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewCreateSampleResponse(tt.args.sample)
+			got, err := NewUpdateSampleResponse(tt.args.sample)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("NewCreateSampleResponse() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("NewUpdateSampleResponse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewCreateSampleResponse() got = %v, want %v", got, tt.want)
+				t.Errorf("NewUpdateSampleResponse() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestCreateSampleResponse_validate(t *testing.T) {
+func TestUpdateSampleResponse_validate(t *testing.T) {
 	type fields struct {
 		sample *entity.Sample
 	}
@@ -76,7 +76,7 @@ func TestCreateSampleResponse_validate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &CreateSampleResponse{
+			c := &UpdateSampleResponse{
 				sample: tt.fields.sample,
 			}
 			if err := c.validate(); (err != nil) != tt.wantErr {
@@ -86,7 +86,7 @@ func TestCreateSampleResponse_validate(t *testing.T) {
 	}
 }
 
-func TestCreateSampleResponse_Sample(t *testing.T) {
+func TestUpdateSampleResponse_Sample(t *testing.T) {
 	type fields struct {
 		sample *entity.Sample
 	}
@@ -96,16 +96,16 @@ func TestCreateSampleResponse_Sample(t *testing.T) {
 		want   *entity.Sample
 	}{
 		{
-			name: "[OK]サンプルデータを取得できる",
+			name: "[OK]sampleを取得できる",
 			fields: fields{
-				sample: newSampleEntityForTest(t, "1", "sample_name"),
+				sample: &entity.Sample{},
 			},
-			want: newSampleEntityForTest(t, "1", "sample_name"),
+			want: &entity.Sample{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &CreateSampleResponse{
+			c := &UpdateSampleResponse{
 				sample: tt.fields.sample,
 			}
 			if got := c.Sample(); !reflect.DeepEqual(got, tt.want) {
