@@ -134,7 +134,7 @@ func TestSampleRepository_validate(t *testing.T) {
 
 // TestSampleRepository_Save Saveのテスト
 // テストの前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - Spannerレミュレータ上にDB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 // TODO: Spannerエミュレータにそもそもアクセスできるかをチェックする工程がほしい
 func TestSampleRepository_Save(t *testing.T) {
@@ -223,7 +223,7 @@ func TestSampleRepository_Save(t *testing.T) {
 
 // TestSampleRepository_FindByIDs FindByIDのテスト
 // テストの前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - Spannerレミュレータ上にDB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func TestSampleRepository_FindByIDs(t *testing.T) {
 	type fields struct {
@@ -369,7 +369,7 @@ func TestSampleRepository_FindByIDs(t *testing.T) {
 
 // TestSampleRepository_FindAll FindAllのテスト
 // テストの前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - Spannerレミュレータ上にDB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func TestSampleRepository_FindAll(t *testing.T) {
 	type fields struct {
@@ -439,7 +439,7 @@ func TestSampleRepository_FindAll(t *testing.T) {
 
 // TestSampleRepository_Delete Deleteのテスト
 // テストの前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - Spannerレミュレータ上にDB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func TestSampleRepository_Delete(t *testing.T) {
 	type fields struct {
@@ -715,7 +715,7 @@ func TestSampleGORM_validate(t *testing.T) {
 
 // setupSamplesForTest SpannerエミュレータのSampleテーブルへレコードをセットアップ
 // 前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func setupSamplesForTest(t *testing.T, sampleGORMs []*SampleGORM) {
 	if len(sampleGORMs) == 0 {
@@ -735,7 +735,7 @@ func setupSamplesForTest(t *testing.T, sampleGORMs []*SampleGORM) {
 
 // deleteSampleRecordAllWithGORM SpannerエミュレータのSampleテーブルの全レコードを削除
 // 前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func deleteAllSamplesForTest(t *testing.T) {
 	con := createGORMConForTest(t)
@@ -746,10 +746,10 @@ func deleteAllSamplesForTest(t *testing.T) {
 
 // createGORMConForTest テスト用のGORMコネクションを生成
 // 利用するための前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func createGORMConForTest(t *testing.T) *gorm.DB {
-	err := os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010")
+	err := os.Setenv("SPANNER_EMULATOR_HOST", "spanner-emulator:9010")
 	if err != nil {
 		t.Fatalf("failed to Setenv(): %v", err)
 	}

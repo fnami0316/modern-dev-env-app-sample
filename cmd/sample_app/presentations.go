@@ -30,6 +30,8 @@ func createPresentations(
 	sampleServiceServer, err := sample.NewSampleServiceServer(
 		useCases.iListSamplesUseCase,
 		useCases.iCreateSampleUseCase,
+		useCases.iUpdateSampleUseCase,
+		useCases.iDeleteSampleUseCase,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewSampleServiceServer(): %w", err)

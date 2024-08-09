@@ -12,6 +12,8 @@ import (
 type SampleServiceServer struct {
 	iListSamplesUseCase  usecase.IListSamplesUseCase
 	iCreateSampleUseCase usecase.ICreateSampleUseCase
+	iUpdateSampleUseCase usecase.IUpdateSampleUseCase
+	iDeleteSampleUseCase usecase.IDeleteSampleUseCase
 	pb.UnimplementedSampleServiceServer
 }
 
@@ -19,10 +21,14 @@ type SampleServiceServer struct {
 func NewSampleServiceServer(
 	iListSamplesUseCase usecase.IListSamplesUseCase,
 	iCreateSampleUseCase usecase.ICreateSampleUseCase,
+	iUpdateSampleUseCase usecase.IUpdateSampleUseCase,
+	iDeleteSampleUseCase usecase.IDeleteSampleUseCase,
 ) (*SampleServiceServer, error) {
 	sampleServiceServer := &SampleServiceServer{
 		iListSamplesUseCase:  iListSamplesUseCase,
 		iCreateSampleUseCase: iCreateSampleUseCase,
+		iUpdateSampleUseCase: iUpdateSampleUseCase,
+		iDeleteSampleUseCase: iDeleteSampleUseCase,
 	}
 	if err := sampleServiceServer.validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate() :%w", err)
@@ -37,6 +43,12 @@ func (s *SampleServiceServer) validate() error {
 	}
 	if s.iCreateSampleUseCase == nil {
 		return errors.New("iCreateSampleUseCase is nil")
+	}
+	if s.iUpdateSampleUseCase == nil {
+		return errors.New("iUpdateSampleUseCase is nil")
+	}
+	if s.iDeleteSampleUseCase == nil {
+		return errors.New("iDeleteSampleUseCase is nil")
 	}
 	return nil
 }

@@ -60,7 +60,7 @@ func TestNewListSamplesUseCase(t *testing.T) {
 }
 
 // テストの前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func TestListSamplesUseCase_Run(t *testing.T) {
 	gorm := createConnectionForTest(t)

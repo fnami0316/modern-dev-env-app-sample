@@ -115,7 +115,7 @@ func TestCreateSampleUseCase_validate(t *testing.T) {
 }
 
 // テストの前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func TestCreateSampleUseCase_Run(t *testing.T) {
 	gormDB := createConnectionForTest(t)
@@ -201,10 +201,10 @@ func TestCreateSampleUseCase_Run(t *testing.T) {
 
 // createConnectionForTest テスト用のGORMコネクションを生成
 // 利用するための前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func createConnectionForTest(t *testing.T) *gorm.DB {
-	err := os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010")
+	err := os.Setenv("SPANNER_EMULATOR_HOST", "spanner-emulator:9010")
 	if err != nil {
 		t.Fatalf("failed to Setenv(): %v", err)
 	}
@@ -249,7 +249,7 @@ func createSampleForTest(t *testing.T, name value.SampleName) *entity.Sample {
 // setupSamplesForTest テスト用データストア上に指定したSampleエンティティ群をセットアップ
 // テスト用データストア: Spannerエミュレータ上のDB
 // 利用するための前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func setupSamplesForTest(t *testing.T, samples entity.Samples) {
 	gormDB := createConnectionForTest(t)
@@ -281,7 +281,7 @@ func setupSamplesForTest(t *testing.T, samples entity.Samples) {
 
 // deleteAllSamplesForTest テスト用データストア上から全てのSampleエンティティ群を削除
 // 利用するための前提条件
-// - Spannerエミュレータが起動状態であり、localhost:9010でアクセス可能であること
+// - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
 func deleteAllSamplesForTest(t *testing.T) {
 	gormDB := createConnectionForTest(t)

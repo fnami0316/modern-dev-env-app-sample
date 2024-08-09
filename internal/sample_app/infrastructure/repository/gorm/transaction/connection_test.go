@@ -41,7 +41,7 @@ func TestNewGORMConnection(t *testing.T) {
 }
 
 func TestGORMConnection_Begin(t *testing.T) {
-	err := os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010")
+	err := os.Setenv("SPANNER_EMULATOR_HOST", "spanner-emulator:9010")
 	if err != nil {
 		t.Fatal("failed to set env")
 	}
@@ -96,7 +96,7 @@ func TestGORMConnection_Begin(t *testing.T) {
 }
 
 func TestGORMConnection_Transaction(t *testing.T) {
-	err := os.Setenv("SPANNER_EMULATOR_HOST", "localhost:9010")
+	err := os.Setenv("SPANNER_EMULATOR_HOST", "spanner-emulator:9010")
 	if err != nil {
 		t.Fatal("failed to set env")
 	}

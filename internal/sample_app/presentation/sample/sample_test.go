@@ -4,14 +4,16 @@ import (
 	"reflect"
 	"testing"
 
-	usecase "modern-dev-env-app-sample/internal/sample_app/application/usecase/sample"
+	application "modern-dev-env-app-sample/internal/sample_app/application/usecase/sample"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
 )
 
 func TestNewSampleServiceServer(t *testing.T) {
 	type args struct {
-		iListSamplesUseCase  usecase.IListSamplesUseCase
-		iCreateSampleUseCase usecase.ICreateSampleUseCase
+		iListSamplesUseCase  application.IListSamplesUseCase
+		iCreateSampleUseCase application.ICreateSampleUseCase
+		iUpdateSampleUseCase application.IUpdateSampleUseCase
+		iDeleteSampleUseCase application.IDeleteSampleUseCase
 	}
 	tests := []struct {
 		name    string
@@ -22,19 +24,26 @@ func TestNewSampleServiceServer(t *testing.T) {
 		{
 			name: "[OK]全てのチェックを通過",
 			args: args{
-				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
-				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
+				iListSamplesUseCase:  &application.ListSamplesUseCase{},
+				iCreateSampleUseCase: &application.CreateSampleUseCase{},
+				iUpdateSampleUseCase: &application.UpdateSampleUseCase{},
+				iDeleteSampleUseCase: &application.DeleteSampleUseCase{},
 			},
 			want: &SampleServiceServer{
-				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
-				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
+				iListSamplesUseCase:  &application.ListSamplesUseCase{},
+				iCreateSampleUseCase: &application.CreateSampleUseCase{},
+				iUpdateSampleUseCase: &application.UpdateSampleUseCase{},
+				iDeleteSampleUseCase: &application.DeleteSampleUseCase{},
 			},
 			wantErr: false,
 		},
 		{
 			name: "[NG]バリデーションエラー",
 			args: args{
-				iListSamplesUseCase: nil,
+				iListSamplesUseCase:  nil, // エラー
+				iCreateSampleUseCase: &application.CreateSampleUseCase{},
+				iUpdateSampleUseCase: &application.UpdateSampleUseCase{},
+				iDeleteSampleUseCase: &application.DeleteSampleUseCase{},
 			},
 			want:    nil,
 			wantErr: true,
@@ -45,6 +54,8 @@ func TestNewSampleServiceServer(t *testing.T) {
 			got, err := NewSampleServiceServer(
 				tt.args.iListSamplesUseCase,
 				tt.args.iCreateSampleUseCase,
+				tt.args.iUpdateSampleUseCase,
+				tt.args.iDeleteSampleUseCase,
 			)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewSampleServiceServer() error = %v, wantErr %v", err, tt.wantErr)
@@ -59,8 +70,10 @@ func TestNewSampleServiceServer(t *testing.T) {
 
 func TestSampleServiceServer_validate(t *testing.T) {
 	type fields struct {
-		iListSamplesUseCase              usecase.IListSamplesUseCase
-		iCreateSampleUseCase             usecase.ICreateSampleUseCase
+		iListSamplesUseCase              application.IListSamplesUseCase
+		iCreateSampleUseCase             application.ICreateSampleUseCase
+		iUpdateSampleUseCase             application.IUpdateSampleUseCase
+		iDeleteSampleUseCase             application.IDeleteSampleUseCase
 		UnimplementedSampleServiceServer pb.UnimplementedSampleServiceServer
 	}
 	tests := []struct {
@@ -71,8 +84,10 @@ func TestSampleServiceServer_validate(t *testing.T) {
 		{
 			name: "[OK]全てのチェックを通過",
 			fields: fields{
-				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
-				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
+				iListSamplesUseCase:  &application.ListSamplesUseCase{},
+				iCreateSampleUseCase: &application.CreateSampleUseCase{},
+				iUpdateSampleUseCase: &application.UpdateSampleUseCase{},
+				iDeleteSampleUseCase: &application.DeleteSampleUseCase{},
 			},
 			wantErr: false,
 		},
@@ -80,15 +95,39 @@ func TestSampleServiceServer_validate(t *testing.T) {
 			name: "[NG]iListSamplesUseCaseがnilである場合エラー",
 			fields: fields{
 				iListSamplesUseCase:  nil,
-				iCreateSampleUseCase: &usecase.CreateSampleUseCase{},
+				iCreateSampleUseCase: &application.CreateSampleUseCase{},
+				iUpdateSampleUseCase: &application.UpdateSampleUseCase{},
+				iDeleteSampleUseCase: &application.DeleteSampleUseCase{},
 			},
 			wantErr: true,
 		},
 		{
 			name: "[NG]iCreateSampleUseCaseがnilである場合エラー",
 			fields: fields{
-				iListSamplesUseCase:  &usecase.ListSamplesUseCase{},
+				iListSamplesUseCase:  &application.ListSamplesUseCase{},
 				iCreateSampleUseCase: nil,
+				iUpdateSampleUseCase: &application.UpdateSampleUseCase{},
+				iDeleteSampleUseCase: &application.DeleteSampleUseCase{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "[NG]iUpdateSampleUseCaseがnilである場合エラー",
+			fields: fields{
+				iListSamplesUseCase:  &application.ListSamplesUseCase{},
+				iCreateSampleUseCase: &application.CreateSampleUseCase{},
+				iUpdateSampleUseCase: nil,
+				iDeleteSampleUseCase: &application.DeleteSampleUseCase{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "[NG]iDeleteSampleUseCaseがnilである場合エラー",
+			fields: fields{
+				iListSamplesUseCase:  &application.ListSamplesUseCase{},
+				iCreateSampleUseCase: &application.CreateSampleUseCase{},
+				iUpdateSampleUseCase: &application.UpdateSampleUseCase{},
+				iDeleteSampleUseCase: nil,
 			},
 			wantErr: true,
 		},
@@ -98,6 +137,8 @@ func TestSampleServiceServer_validate(t *testing.T) {
 			s := &SampleServiceServer{
 				iListSamplesUseCase:              tt.fields.iListSamplesUseCase,
 				iCreateSampleUseCase:             tt.fields.iCreateSampleUseCase,
+				iUpdateSampleUseCase:             tt.fields.iUpdateSampleUseCase,
+				iDeleteSampleUseCase:             tt.fields.iDeleteSampleUseCase,
 				UnimplementedSampleServiceServer: tt.fields.UnimplementedSampleServiceServer,
 			}
 			if err := s.validate(); (err != nil) != tt.wantErr {
