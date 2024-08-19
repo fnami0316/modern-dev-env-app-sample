@@ -35,6 +35,9 @@
 # Goアプリケーションをビルドして実行
 FROM golang:1.21.1
 
+# モックモジュールのインストール(実装作業に必要なものであり、アプリケーションのビルドに必要なものではない)
+RUN go install go.uber.org/mock/mockgen@latest
+
 # /appディレクトリの作成&移動
 WORKDIR /app
 
