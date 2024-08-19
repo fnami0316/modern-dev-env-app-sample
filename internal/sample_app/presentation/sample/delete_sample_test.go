@@ -2,6 +2,7 @@ package sample
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 
@@ -11,10 +12,14 @@ import (
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
 
+	"go.uber.org/mock/gomock"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func TestSampleServiceServer_DeleteSample(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	usecase := sample.NewMockDeleteSampleUseCase(ctrl)
+
 	type fields struct {
 		iListSamplesUseCase              sample.IListSamplesUseCase
 		iCreateSampleUseCase             sample.ICreateSampleUseCase
@@ -33,7 +38,48 @@ func TestSampleServiceServer_DeleteSample(t *testing.T) {
 		want    *pb.DeleteSampleResponse
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "[OK]ユースケースを実行できる",
+			fields: fields{
+				iDeleteSampleUseCase: func() sample.IDeleteSampleUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.DeleteSampleRequest) (*application2.DeleteSampleResponse, error) {
+							return &application2.DeleteSampleResponse{}, nil
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.DeleteSampleRequest{
+					Id: "id1",
+				},
+			},
+			want: &pb.DeleteSampleResponse{
+				Empty: &emptypb.Empty{},
+			},
+			wantErr: false,
+		},
+		{
+			name: "[OK]ユースケースの実行でエラー",
+			fields: fields{
+				iDeleteSampleUseCase: func() sample.IDeleteSampleUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.DeleteSampleRequest) (*application2.DeleteSampleResponse, error) {
+							return nil, errors.New("run error")
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.DeleteSampleRequest{
+					Id: "id1",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

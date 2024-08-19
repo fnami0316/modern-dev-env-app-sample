@@ -2,6 +2,7 @@ package sample
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 
@@ -11,9 +12,14 @@ import (
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
+
+	"go.uber.org/mock/gomock"
 )
 
 func TestSampleServiceServer_ListSamples(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	usecase := application3.NewMockListSamplesUseCase(ctrl)
+
 	type fields struct {
 		iListSamplesUseCase              application3.IListSamplesUseCase
 		iCreateSampleUseCase             application3.ICreateSampleUseCase
@@ -32,7 +38,60 @@ func TestSampleServiceServer_ListSamples(t *testing.T) {
 		want    *pb.ListSamplesResponse
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "[OK]ユースケースを実行できる",
+			fields: fields{
+				iListSamplesUseCase: func() application3.IListSamplesUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.ListSamplesRequest) (*application2.ListSamplesResponse, error) {
+							return newListSamplesResponseForTest(
+								t,
+								entity.Samples{newSampleForTest(t, req.IDs()[0], "name1")},
+							), nil
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.ListSamplesRequest{
+					Ids: []string{
+						"id1",
+					},
+				},
+			},
+			want: &pb.ListSamplesResponse{
+				Samples: []*pb.Sample{
+					{
+						Id:   "id1",
+						Name: "name1",
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "[NG]ユースケースの実行でエラー",
+			fields: fields{
+				iListSamplesUseCase: func() application3.IListSamplesUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.ListSamplesRequest) (*application2.ListSamplesResponse, error) {
+							return nil, errors.New("run error")
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.ListSamplesRequest{
+					Ids: []string{
+						"id1",
+					},
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

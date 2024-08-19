@@ -2,6 +2,7 @@ package sample
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 
@@ -11,9 +12,14 @@ import (
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
+
+	"go.uber.org/mock/gomock"
 )
 
 func TestSampleServiceServer_UpdateSample(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	usecase := sample.NewMockUpdateSampleUseCase(ctrl)
+
 	type fields struct {
 		iListSamplesUseCase              sample.IListSamplesUseCase
 		iCreateSampleUseCase             sample.ICreateSampleUseCase
@@ -32,7 +38,53 @@ func TestSampleServiceServer_UpdateSample(t *testing.T) {
 		want    *pb.UpdateSampleResponse
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "[OK]ユースケースを実行できる",
+			fields: fields{
+				iUpdateSampleUseCase: func() sample.IUpdateSampleUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.UpdateSampleRequest) (*application2.UpdateSampleResponse, error) {
+							return newUpdateSampleResponseForTest(t, newSampleForTest(t, req.ID(), req.Name())), nil
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.UpdateSampleRequest{
+					Id:   "id1",
+					Name: "name1",
+				},
+			},
+			want: &pb.UpdateSampleResponse{
+				Sample: &pb.Sample{
+					Id:   "id1",
+					Name: "name1",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "[OK]ユースケースの実行でエラー",
+			fields: fields{
+				iUpdateSampleUseCase: func() sample.IUpdateSampleUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.UpdateSampleRequest) (*application2.UpdateSampleResponse, error) {
+							return nil, errors.New("run error")
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.UpdateSampleRequest{
+					Id:   "id1",
+					Name: "name1",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

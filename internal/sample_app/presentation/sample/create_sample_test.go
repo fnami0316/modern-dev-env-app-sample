@@ -2,23 +2,29 @@ package sample
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 
 	application "modern-dev-env-app-sample/internal/sample_app/application/request/sample"
 	application2 "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
-	"modern-dev-env-app-sample/internal/sample_app/application/usecase/sample"
+	application3 "modern-dev-env-app-sample/internal/sample_app/application/usecase/sample"
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	"modern-dev-env-app-sample/internal/sample_app/presentation/pb"
+
+	"go.uber.org/mock/gomock"
 )
 
 func TestSampleServiceServer_CreateSample(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	usecase := application3.NewMockCreateSampleUseCase(ctrl)
+
 	type fields struct {
-		iListSamplesUseCase              sample.IListSamplesUseCase
-		iCreateSampleUseCase             sample.ICreateSampleUseCase
-		iUpdateSampleUseCase             sample.IUpdateSampleUseCase
-		iDeleteSampleUseCase             sample.IDeleteSampleUseCase
+		iListSamplesUseCase              application3.IListSamplesUseCase
+		iCreateSampleUseCase             application3.ICreateSampleUseCase
+		iUpdateSampleUseCase             application3.IUpdateSampleUseCase
+		iDeleteSampleUseCase             application3.IDeleteSampleUseCase
 		UnimplementedSampleServiceServer pb.UnimplementedSampleServiceServer
 	}
 	type args struct {
@@ -32,7 +38,51 @@ func TestSampleServiceServer_CreateSample(t *testing.T) {
 		want    *pb.CreateSampleResponse
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "[OK]ユースケースを実行できる",
+			fields: fields{
+				iCreateSampleUseCase: func() application3.ICreateSampleUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.CreateSampleRequest) (*application2.CreateSampleResponse, error) {
+							return newCreateSampleResponseForTest(t, newSampleForTest(t, "id1", req.Name())), nil
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.CreateSampleRequest{
+					Name: "name1",
+				},
+			},
+			want: &pb.CreateSampleResponse{
+				Sample: &pb.Sample{
+					Id:   "id1",
+					Name: "name1",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "[NG]ユースケースの実行でエラー",
+			fields: fields{
+				iCreateSampleUseCase: func() application3.ICreateSampleUseCase {
+					usecase.EXPECT().Run(gomock.Any()).DoAndReturn(
+						func(req *application.CreateSampleRequest) (*application2.CreateSampleResponse, error) {
+							return nil, errors.New("run error")
+						},
+					)
+					return usecase
+				}(),
+			},
+			args: args{
+				req: &pb.CreateSampleRequest{
+					Name: "name1",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -57,10 +107,10 @@ func TestSampleServiceServer_CreateSample(t *testing.T) {
 
 func TestSampleServiceServer_convertToCreateSampleRequestForUseCase(t *testing.T) {
 	type fields struct {
-		iListSamplesUseCase              sample.IListSamplesUseCase
-		iCreateSampleUseCase             sample.ICreateSampleUseCase
-		iUpdateSampleUseCase             sample.IUpdateSampleUseCase
-		iDeleteSampleUseCase             sample.IDeleteSampleUseCase
+		iListSamplesUseCase              application3.IListSamplesUseCase
+		iCreateSampleUseCase             application3.ICreateSampleUseCase
+		iUpdateSampleUseCase             application3.IUpdateSampleUseCase
+		iDeleteSampleUseCase             application3.IDeleteSampleUseCase
 		UnimplementedSampleServiceServer pb.UnimplementedSampleServiceServer
 	}
 	type args struct {
@@ -119,10 +169,10 @@ func TestSampleServiceServer_convertToCreateSampleRequestForUseCase(t *testing.T
 
 func TestSampleServiceServer_convertToCreateSampleResponseForProtoc(t *testing.T) {
 	type fields struct {
-		iListSamplesUseCase              sample.IListSamplesUseCase
-		iCreateSampleUseCase             sample.ICreateSampleUseCase
-		iUpdateSampleUseCase             sample.IUpdateSampleUseCase
-		iDeleteSampleUseCase             sample.IDeleteSampleUseCase
+		iListSamplesUseCase              application3.IListSamplesUseCase
+		iCreateSampleUseCase             application3.ICreateSampleUseCase
+		iUpdateSampleUseCase             application3.IUpdateSampleUseCase
+		iDeleteSampleUseCase             application3.IDeleteSampleUseCase
 		UnimplementedSampleServiceServer pb.UnimplementedSampleServiceServer
 	}
 	type args struct {
