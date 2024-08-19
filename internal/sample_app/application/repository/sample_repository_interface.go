@@ -1,3 +1,5 @@
+//go:generate  mockgen -source=sample_repository_interface.go -destination=sample_repository_mocks.go -package=repository -mock_names=ISampleRepository=MockSampleRepository
+
 package repository
 
 import (
