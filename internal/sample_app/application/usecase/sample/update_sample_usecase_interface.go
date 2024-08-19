@@ -1,3 +1,5 @@
+//go:generate mockgen -source=update_sample_usecase_interface.go -destination=update_sample_usecase_mock.go -package=sample -mock_names=IUpdateSampleUseCase=MockUpdateSampleUseCase
+
 package sample
 
 import (

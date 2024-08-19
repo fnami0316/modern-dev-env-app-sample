@@ -1,3 +1,5 @@
+//go:generate mockgen -source=delete_sample_usecase_interface.go -destination=delete_sample_usecase_mock.go -package=sample -mock_names=IDeleteSampleUseCase=MockDeleteSampleUseCase
+
 package sample
 
 import (
