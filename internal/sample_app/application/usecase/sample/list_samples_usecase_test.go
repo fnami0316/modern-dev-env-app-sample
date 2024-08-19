@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"modern-dev-env-app-sample/internal/sample_app/application/repository"
+	application3 "modern-dev-env-app-sample/internal/sample_app/application/repository"
 	application2 "modern-dev-env-app-sample/internal/sample_app/application/request/sample"
 	application "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
 	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
@@ -18,7 +18,7 @@ import (
 
 func TestNewListSamplesUseCase(t *testing.T) {
 	type args struct {
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	tests := []struct {
 		name    string
@@ -76,7 +76,7 @@ func TestListSamplesUseCase_Run(t *testing.T) {
 	sample3 := newSampleForTest(t, "sample3", "sample3")
 
 	type fields struct {
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	type args struct {
 		req *application2.ListSamplesRequest
@@ -175,7 +175,7 @@ func TestListSamplesUseCase_Run(t *testing.T) {
 
 func TestListSamplesUseCase_validate(t *testing.T) {
 	type fields struct {
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	tests := []struct {
 		name    string

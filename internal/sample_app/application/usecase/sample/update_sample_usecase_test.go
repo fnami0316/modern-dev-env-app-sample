@@ -1,10 +1,11 @@
 package sample
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
-	"modern-dev-env-app-sample/internal/sample_app/application/repository"
+	application3 "modern-dev-env-app-sample/internal/sample_app/application/repository"
 	"modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 	application "modern-dev-env-app-sample/internal/sample_app/application/request/sample"
 	application2 "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
@@ -14,12 +15,13 @@ import (
 	infrastructure "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm/transaction"
 
 	"github.com/google/go-cmp/cmp"
+	"go.uber.org/mock/gomock"
 )
 
 func TestNewUpdateSampleUseCase(t *testing.T) {
 	type args struct {
 		iCon        transaction.IConnection
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	tests := []struct {
 		name    string
@@ -66,7 +68,7 @@ func TestNewUpdateSampleUseCase(t *testing.T) {
 func TestUpdateSampleUseCase_validate(t *testing.T) {
 	type fields struct {
 		iCon        transaction.IConnection
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	tests := []struct {
 		name    string
@@ -121,6 +123,8 @@ func TestUpdateSampleUseCase_Run(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to CreateSampleRepository(): %v", err)
 	}
+	ctrl := gomock.NewController(t)
+	mockSampleRepo := application3.NewMockSampleRepository(ctrl)
 
 	// 自動採番で生成したSampleエンティティ
 	sample1 := createSampleForTest(t, "sample1")
@@ -136,7 +140,7 @@ func TestUpdateSampleUseCase_Run(t *testing.T) {
 
 	type fields struct {
 		iCon        transaction.IConnection
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	type args struct {
 		req *application.UpdateSampleRequest
@@ -185,6 +189,32 @@ func TestUpdateSampleUseCase_Run(t *testing.T) {
 			},
 			args: args{
 				req: newUpdateSampleRequestForTest(t, sample4.ID(), updatedSample1Name),
+			},
+			wantRes: nil,
+			wantSamples: entity.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			wantErr: true,
+		},
+		{
+			name: "[NG]Save()でエラー",
+			setupSamples: entity.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			fields: fields{
+				iCon: con,
+				iSampleRepo: func() application3.ISampleRepository {
+					mockSampleRepo.EXPECT().FindByIDs(gomock.Any(), gomock.Any()).Return(entity.Samples{sample1}, nil)
+					mockSampleRepo.EXPECT().Save(gomock.Any(), gomock.Any()).Return(errors.New("save error"))
+					return mockSampleRepo
+				}(),
+			},
+			args: args{
+				req: newUpdateSampleRequestForTest(t, sample1.ID(), updatedSample1Name),
 			},
 			wantRes: nil,
 			wantSamples: entity.Samples{

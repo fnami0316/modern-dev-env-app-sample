@@ -1,6 +1,7 @@
 package sample
 
 import (
+	"errors"
 	"os"
 	"reflect"
 	"testing"
@@ -9,13 +10,14 @@ import (
 	application4 "modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 	application "modern-dev-env-app-sample/internal/sample_app/application/request/sample"
 	application2 "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
-	entity "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
+	domain "modern-dev-env-app-sample/internal/sample_app/domain/entity/sample"
 	"modern-dev-env-app-sample/internal/sample_app/domain/value"
 	infrastructure "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm"
 	infrastructure2 "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm/transaction"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"go.uber.org/mock/gomock"
 	"gorm.io/gorm"
 )
 
@@ -124,6 +126,8 @@ func TestCreateSampleUseCase_Run(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to CreateSampleRepository(): %v", err)
 	}
+	ctrl := gomock.NewController(t)
+	mockSampleRepo := application3.NewMockSampleRepository(ctrl)
 
 	// 自動採番で生成したSampleエンティティ
 	sample1 := createSampleForTest(t, "sample1")
@@ -140,16 +144,16 @@ func TestCreateSampleUseCase_Run(t *testing.T) {
 	}
 	tests := []struct {
 		name         string
-		setupSamples entity.Samples
+		setupSamples domain.Samples
 		fields       fields
 		args         args
 		wantRes      *application2.CreateSampleResponse
-		wantSamples  entity.Samples
+		wantSamples  domain.Samples
 		wantErr      bool
 	}{
 		{
 			name: "[OK]サンプルデータを作成できる",
-			setupSamples: entity.Samples{
+			setupSamples: domain.Samples{
 				sample1,
 				sample2,
 				sample3,
@@ -162,12 +166,42 @@ func TestCreateSampleUseCase_Run(t *testing.T) {
 				req: newCreateSampleRequestForTest(t, "sample4"),
 			},
 			wantRes: newCreateSampleResponseForTest(t, sample4),
-			wantSamples: entity.Samples{
+			wantSamples: domain.Samples{
 				sample1,
 				sample2,
 				sample3,
 				sample4,
 			},
+			wantErr: false,
+		},
+		{
+			name: "[NG]Saveでエラー",
+			setupSamples: domain.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			fields: fields{
+				iCon: con,
+				iSampleRepo: func() application3.ISampleRepository {
+					mockSampleRepo.EXPECT().Save(gomock.Any(), gomock.Any()).DoAndReturn(
+						func(sample *domain.Sample, iTx application4.ITransaction) error {
+							return errors.New("dummy error")
+						},
+					)
+					return mockSampleRepo
+				}(),
+			},
+			args: args{
+				req: newCreateSampleRequestForTest(t, "sample4"),
+			},
+			wantRes: nil,
+			wantSamples: domain.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -229,7 +263,7 @@ func newCreateSampleRequestForTest(t *testing.T, name value.SampleName) *applica
 }
 
 // newCreateSampleResponseForTest CreateSampleResponseを生成(エラーはテスト失敗として扱う)
-func newCreateSampleResponseForTest(t *testing.T, sample *entity.Sample) *application2.CreateSampleResponse {
+func newCreateSampleResponseForTest(t *testing.T, sample *domain.Sample) *application2.CreateSampleResponse {
 	res, err := application2.NewCreateSampleResponse(sample)
 	if err != nil {
 		t.Fatalf("failed to NewCreateSampleResponse(): %v", err)
@@ -238,8 +272,8 @@ func newCreateSampleResponseForTest(t *testing.T, sample *entity.Sample) *applic
 }
 
 // createSampleForTest ID自動採番でSampleエンティティを生成(エラーはテスト失敗として扱う)
-func createSampleForTest(t *testing.T, name value.SampleName) *entity.Sample {
-	sample, err := entity.CreateDefaultSample(name)
+func createSampleForTest(t *testing.T, name value.SampleName) *domain.Sample {
+	sample, err := domain.CreateDefaultSample(name)
 	if err != nil {
 		t.Fatalf("failed to CreateDefaultSample(): %v", err)
 	}
@@ -251,7 +285,7 @@ func createSampleForTest(t *testing.T, name value.SampleName) *entity.Sample {
 // 利用するための前提条件
 // - Spannerエミュレータが起動状態であり、spanner-emulator:9010でアクセス可能であること
 // - DB projects/local-project/instances/test-instance/databases/test-database が作成されていること
-func setupSamplesForTest(t *testing.T, samples entity.Samples) {
+func setupSamplesForTest(t *testing.T, samples domain.Samples) {
 	gormDB := createConnectionForTest(t)
 	iCon := infrastructure2.NewGORMConnection(gormDB)
 	sampleRepo, err := infrastructure.CreateSampleRepository(iCon)
@@ -319,10 +353,10 @@ func deleteAllSamplesForTest(t *testing.T) {
 func compareCreateSampleResponse(t *testing.T, got, want *application2.CreateSampleResponse) {
 	opts := []cmp.Option{
 		// IDはランダム採番なので比較対象外とする
-		cmpopts.IgnoreFields(entity.Sample{}, "id"),
+		cmpopts.IgnoreFields(domain.Sample{}, "id"),
 		cmp.AllowUnexported(
 			application2.CreateSampleResponse{},
-			entity.Sample{},
+			domain.Sample{},
 		),
 	}
 	if diff := cmp.Diff(got, want, opts...); diff != "" {
@@ -331,12 +365,12 @@ func compareCreateSampleResponse(t *testing.T, got, want *application2.CreateSam
 }
 
 // compareSamples Sampleエンティティ群の比較
-func compareSamples(t *testing.T, got, want entity.Samples) {
+func compareSamples(t *testing.T, got, want domain.Samples) {
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(entity.Sample{}, "id"),
-		cmp.AllowUnexported(entity.Sample{}),
+		cmpopts.IgnoreFields(domain.Sample{}, "id"),
+		cmp.AllowUnexported(domain.Sample{}),
 		// 自動採番であるIDは結果の比較においては順番の制御が難しいため、名前でソートして比較
-		cmpopts.SortSlices(func(a, b *entity.Sample) bool {
+		cmpopts.SortSlices(func(a, b *domain.Sample) bool {
 			return a.Name() < b.Name()
 		}),
 	}

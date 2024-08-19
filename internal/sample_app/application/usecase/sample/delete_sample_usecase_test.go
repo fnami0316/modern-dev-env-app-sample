@@ -1,10 +1,11 @@
 package sample
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
-	"modern-dev-env-app-sample/internal/sample_app/application/repository"
+	application3 "modern-dev-env-app-sample/internal/sample_app/application/repository"
 	"modern-dev-env-app-sample/internal/sample_app/application/repository/transaction"
 	application "modern-dev-env-app-sample/internal/sample_app/application/request/sample"
 	application2 "modern-dev-env-app-sample/internal/sample_app/application/response/sample"
@@ -14,12 +15,13 @@ import (
 	infrastructure "modern-dev-env-app-sample/internal/sample_app/infrastructure/repository/gorm/transaction"
 
 	"github.com/google/go-cmp/cmp"
+	"go.uber.org/mock/gomock"
 )
 
 func TestNewDeleteSampleUseCase(t *testing.T) {
 	type args struct {
 		iCon        transaction.IConnection
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	tests := []struct {
 		name    string
@@ -66,7 +68,7 @@ func TestNewDeleteSampleUseCase(t *testing.T) {
 func TestDeleteSampleUseCase_validate(t *testing.T) {
 	type fields struct {
 		iCon        transaction.IConnection
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	tests := []struct {
 		name    string
@@ -121,6 +123,8 @@ func TestDeleteSampleUseCase_Run(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to CreateSampleRepository(): %v", err)
 	}
+	ctrl := gomock.NewController(t)
+	mockSampleRepo := application3.NewMockSampleRepository(ctrl)
 
 	// 自動採番で生成したSampleエンティティ
 	sample1 := createSampleForTest(t, "sample1")
@@ -130,7 +134,7 @@ func TestDeleteSampleUseCase_Run(t *testing.T) {
 
 	type fields struct {
 		iCon        transaction.IConnection
-		iSampleRepo repository.ISampleRepository
+		iSampleRepo application3.ISampleRepository
 	}
 	type args struct {
 		req *application.DeleteSampleRequest
@@ -178,6 +182,57 @@ func TestDeleteSampleUseCase_Run(t *testing.T) {
 			},
 			args: args{
 				req: newDeleteSampleRequestForTest(t, sample4.ID()),
+			},
+			wantRes: nil,
+			wantSamples: entity.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			wantErr: true,
+		},
+		{
+			name: "[NG]FindByIDs()でエラー",
+			setupSamples: entity.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			fields: fields{
+				iCon: con,
+				iSampleRepo: func() application3.ISampleRepository {
+					mockSampleRepo.EXPECT().FindByIDs(gomock.Any(), gomock.Any()).Return(nil, errors.New("FindByIDs error"))
+					return mockSampleRepo
+				}(),
+			},
+			args: args{
+				req: newDeleteSampleRequestForTest(t, sample1.ID()),
+			},
+			wantRes: nil,
+			wantSamples: entity.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			wantErr: true,
+		},
+		{
+			name: "[NG]Delete()でエラー",
+			setupSamples: entity.Samples{
+				sample1,
+				sample2,
+				sample3,
+			},
+			fields: fields{
+				iCon: con,
+				iSampleRepo: func() application3.ISampleRepository {
+					mockSampleRepo.EXPECT().FindByIDs(gomock.Any(), gomock.Any()).Return(entity.Samples{sample1}, nil)
+					mockSampleRepo.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(errors.New("delete error"))
+					return mockSampleRepo
+				}(),
+			},
+			args: args{
+				req: newDeleteSampleRequestForTest(t, sample1.ID()),
 			},
 			wantRes: nil,
 			wantSamples: entity.Samples{
