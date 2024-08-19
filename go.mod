@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/googleapis/go-gorm-spanner v1.2.2
 	github.com/kelseyhightower/envconfig v1.4.0
+	go.uber.org/mock v0.4.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 	gorm.io/gorm v1.25.11
