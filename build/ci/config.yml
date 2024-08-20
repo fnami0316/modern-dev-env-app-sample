@@ -134,6 +134,9 @@ jobs:
     executor: base
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 25.0.3
+          docker_layer_caching: true
       - run: make docker-compose-up-d
       - run: make go-test
       - persist_to_workspace:
