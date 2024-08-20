@@ -52,3 +52,26 @@ services:
     depends_on:
       spanner-emulator-healthcheck:
         condition: service_healthy
+
+  # Goアプリケーションのヘルスチェック用コンテナ
+  api-healthcheck:
+    image: fullstorydev/grpcurl:latest-alpine
+    depends_on:
+      - api
+    platform: linux/amd64
+    entrypoint: tail -f /dev/null
+    healthcheck:
+      test: |
+        grpcurl -plaintext -d '{"name": "sample"}' ${API_HOST} api.SampleService.CreateSample
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+  # 全てのサービスの起動が完了したことの確認用
+  all-service-up:
+    image: alpine
+    depends_on:
+      api-healthcheck:
+        condition: service_healthy
+    entrypoint: echo "all services up"
