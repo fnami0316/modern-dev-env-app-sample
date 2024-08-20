@@ -12,11 +12,14 @@ protoc:
 # ローカル環境のdocker-composeコマンドエイリアス
 # 全コンテナをイメージのビルドから始めて再起動
 docker-compose-full-reload: docker-compose-down docker-compose-build docker-compose-up
+docker-compose-full-reload-d: docker-compose-down docker-compose-build docker-compose-up-d
 # 全コンテナイメージのビルド
 docker-compose-build:
 	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} build --no-cache
 # 全コンテナを起動
 docker-compose-up:
+	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} up
+docker-compose-up-d:
 	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} up -d
 # 全コンテナを削除
 docker-compose-down:
