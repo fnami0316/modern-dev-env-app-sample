@@ -138,7 +138,7 @@ jobs:
           docker_layer_caching: true
       - run: ls -l ~/project
       - run: ls -l /home/circleci
-      - run: make docker-compose-up-d
+      - run: make docker-compose-full-reload-d
       - run: make go-test
       - persist_to_workspace:
           root: ~/project
