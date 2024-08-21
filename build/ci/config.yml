@@ -135,9 +135,10 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
-      - run: ls -l ~/project
+#          docker_layer_caching: true
       - run: ls -l /home/circleci
+      - run: docker version
+      - run: docker-compose version
       - run: make docker-compose-full-reload-d
       - run: make go-test
       - persist_to_workspace:
