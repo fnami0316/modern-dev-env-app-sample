@@ -67,5 +67,8 @@ docker-login-api:
 # apiコンテナ上でgo testを実行
 docker-go-test:
 	docker exec -it `docker ps -qf name=api` go test ./...
+# apiコンテナ上でgo testを実行(直列)
+docker-go-test-serial:
+	docker exec -it `docker ps -qf name=api` go test -p 1 ./...
 
 .PHONY: docker-compose-full-reload docker-compose-build docker-compose-up docker-compose-down docker-compose-ps docker-login-api docker-go-test api
