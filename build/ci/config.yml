@@ -136,7 +136,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: make docker-compose-circleci-up-d
-      - run: make docker-go-test
+      - run: make docker-go-test-serial
       - persist_to_workspace:
           root: ~/project
           paths: .
