@@ -1,0 +1,73 @@
+services:
+  # Spanner エミュレータ
+  spanner-emulator:
+    image: gcr.io/cloud-spanner-emulator/emulator:1.5.22
+    ports:
+      - "9010:9010"
+      - "9020:9020"
+
+  # Spanner エミュレータ起動後に流すスクリプト
+  # 指定したプロジェクトID, インスタンスID, データベースIDのデータベースを作成する
+  spanner-emulator-init-script:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:alpine
+    platform: linux/amd64
+    command: >
+      bash -c 'gcloud config configurations create emulator || gcloud config configurations activate emulator &&
+              gcloud config set auth/disable_credentials true &&
+              gcloud config set project ${GCP_PROJECT_ID} &&
+              gcloud config set api_endpoint_overrides/spanner ${SPANNER_EMULATOR_URL}/ --quiet&&
+              gcloud spanner instances create ${SPANNER_INSTANCE_ID} --config=emulator-config --description="Test Instance" --nodes=1 &&
+              gcloud spanner databases create ${SPANNER_DATABASE_ID} --instance=${SPANNER_INSTANCE_ID}'
+    depends_on:
+      - spanner-emulator
+
+  # Spanner エミュレータのヘルスチェック用コンテナ
+  spanner-emulator-healthcheck:
+    image: curlimages/curl
+    depends_on:
+      - spanner-emulator
+    platform: linux/amd64
+    entrypoint: tail -f /dev/null
+    healthcheck:
+      test: curl -f ${SPANNER_EMULATOR_URL}/v1/projects/${GCP_PROJECT_ID}/instances/${SPANNER_INSTANCE_ID}/databases/${SPANNER_DATABASE_ID}
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+  # GoアプリケーションのAPIサーバ
+  api:
+    build:
+      context: ../../
+      dockerfile: ./build/packages/docker/Dockerfile.sample_app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    tty: true
+    depends_on:
+      spanner-emulator-healthcheck:
+        condition: service_healthy
+
+  # Goアプリケーションのヘルスチェック用コンテナ
+  api-healthcheck:
+    image: fullstorydev/grpcurl:latest-alpine
+    depends_on:
+      - api
+    platform: linux/amd64
+    entrypoint: tail -f /dev/null
+    healthcheck:
+      test: |
+        grpcurl -plaintext -d '{"name": "sample"}' ${API_HOST} api.SampleService.CreateSample
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
+
+  # 全てのサービスの起動が完了したことの確認用
+  all-service-up:
+    image: alpine
+    depends_on:
+      api-healthcheck:
+        condition: service_healthy
+    entrypoint: echo "all services up"
