@@ -150,7 +150,7 @@ jobs:
       - run: docker version
       - run: docker-compose version
       - run: make docker-compose-circleci-up-d
-      - run: make docker-compose-go-test
+      - run: make docker-go-test
       - persist_to_workspace:
           root: ~/project
           paths: .
