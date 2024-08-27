@@ -57,7 +57,7 @@ variable "spanner_instance_dev" {
     # インスタンス構成
     config = "regional-us-central1"
     # 表示名
-    display_name = "dev"
+    display_name = "sentry-429112-dev"
     # ノード数
     num_nodes = 1
   }
