@@ -42,3 +42,37 @@ variable "cloud_run_api" {
     startup_cpu_boost = false
   }
 }
+
+variable "spanner_instance_dev" {
+  description = "Cloud Spannerのインスタンスの設定値"
+  type = object({
+    name = string
+    config = string
+    display_name = string
+    num_nodes = number
+  })
+  default = {
+    # インスタンス名(ID)
+    name = "sentry-429112-dev"
+    # インスタンス構成
+    config = "regional-us-central1"
+    # 表示名
+    display_name = "dev"
+    # ノード数
+    num_nodes = 1
+  }
+}
+
+variable "spanner_database_dev" {
+  description = "Cloud Spannerのデータベースの設定値"
+  type = object({
+    instance = string
+    name = string
+  })
+  default = {
+    # インスタンス名(ID)
+    instance = "sentry-429112-dev"
+    # データベース名(ID)
+    name = "sentry-429112-dev-1"
+  }
+}

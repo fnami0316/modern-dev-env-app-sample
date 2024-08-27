@@ -4,6 +4,7 @@ variable "gcp_service_list" {
   type        = list(string)
   default     = [
     "run.googleapis.com",
+    "spanner.googleapis.com",
   ]
 }
 
@@ -53,10 +54,32 @@ resource "google_cloud_run_v2_service" "api" {
         # コンテナのポート番号(外部から内部への転送先。コンテナの環境変数PORTとしても設定される)
         container_port = var.cloud_run_api.container_port
       }
+
+      # 環境変数
+      env {
+        name  = "GCP_PROJECT_ID"
+        value = var.default_project_id
+      }
+      env {
+        name  = "SPANNER_INSTANCE_ID"
+        value = var.spanner_instance_dev.name
+      }
+      env {
+        name  = "SPANNER_DATABASE_ID"
+        value = var.spanner_database_dev.name
+      }
     }
   }
   depends_on = [google_project_service.gcp_services["run.googleapis.com"]]
 }
+
+## サービスアカウント
+#resource "google_service_account" "run-api" {
+#  account_id   = "cloud-run-api"
+#  display_name = "cloud-run-api"
+#  description  = "Cloud Runのサービスアカウント"
+# }
+
 # Cloud Run services(API) の公開設定
 # 参考:
 # - https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service_iam
@@ -100,3 +123,30 @@ resource "google_project_iam_member" "circleci" {
   role    = each.key
   member  = "serviceAccount:${google_service_account.circleci.email}"
 }
+
+# Spanner関連
+# インスタンス
+resource "google_spanner_instance" "dev" {
+  name          = var.spanner_instance_dev.name
+  config        = var.spanner_instance_dev.config
+  display_name  = var.spanner_instance_dev.display_name
+  num_nodes     = var.spanner_instance_dev.num_nodes
+  depends_on = [google_project_service.gcp_services["spanner.googleapis.com"]]
+}
+
+# インスタンスのIAM(多分不要・・・インスタンスレベルで操作するのは、現状オーナーのアカウントのみ)
+
+# データベース
+resource "google_spanner_database" "spanner" {
+  instance = var.spanner_database_dev.instance
+  name     = var.spanner_database_dev.name
+}
+
+# データベースのIAM
+#resource "google_spanner_database_iam_member" "run-api-spanner" {
+#  instance = google_spanner_database.spanner.instance
+#  name = google_spanner_database.spanner.name
+#  role     = "roles/spanner.databaseUser"
+#  member  = "serviceAccount:${google_service_account.run-api.email}"
+#}
+
