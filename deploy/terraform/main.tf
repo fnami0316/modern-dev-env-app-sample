@@ -137,9 +137,10 @@ resource "google_spanner_instance" "dev" {
 # インスタンスのIAM(多分不要・・・インスタンスレベルで操作するのは、現状オーナーのアカウントのみ)
 
 # データベース
-resource "google_spanner_database" "spanner" {
+resource "google_spanner_database" "dev-1" {
   instance = var.spanner_database_dev.instance
   name     = var.spanner_database_dev.name
+  depends_on = [google_spanner_instance.dev]
 }
 
 # データベースのIAM
