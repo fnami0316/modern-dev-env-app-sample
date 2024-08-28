@@ -225,6 +225,12 @@ jobs:
       - build-image:
           dockerfile_path: "build/packages/docker/Dockerfile.sample_app"
           image_name: ${IMAGE_NAME}
+      - run:
+          description: "Authenticate Artifact Registry with Service Account"
+          command: |
+            export OIDC_SERVICE_ACCOUNT_EMAIL=circleci@${GCP_PJ_ID}.iam.gserviceaccount.com
+            echo "OIDC_SERVICE_ACCOUNT_EMAIL: ${OIDC_SERVICE_ACCOUNT_EMAIL}"
+            gcloud auth print-access-token --impersonate-service-account ACCOUNT | docker login -u oauth2accesstoken --password-stdin https://${GCP_REGION}-docker.pkg.dev
       - push-image:
           image_name: ${IMAGE_NAME}
       - unless:
