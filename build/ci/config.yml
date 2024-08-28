@@ -101,11 +101,13 @@ commands:
             echo "export GCP_PJ_ID=$(gcloud config get-value project)" >> $BASH_ENV
             echo "export GCP_REGION=$(gcloud config get-value compute/region)" >> $BASH_ENV
             echo "export GCP_ZONE=$(gcloud config get-value compute/zone)" >> $BASH_ENV
+            # ArtifactRegistry上のイメージの完全名(=Dockerイメージのタグ)
+            echo "export IMAGE_NAME=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app" >> $BASH_ENV
 
-  install-ko:
-    description: "Install ko"
-    steps:
-      - run: go install github.com/google/ko@latest
+#  install-ko:
+#    description: "Install ko"
+#    steps:
+#      - run: go install github.com/google/ko@latest
 
 jobs:
   send-notification-workflow-start:
@@ -144,22 +146,56 @@ jobs:
           event: fail
           message: ":fire: CircleCI Job:${CIRCLE_JOB} (node${CIRCLE_NODE_INDEX}) failure ! :fire:"
 
+#  build-image-and-deploy:
+#    description: "Build Docker image and push it to Artifact Registry. After that, deploy to Cloud Run. (After that, release it optionally)"
+#    executor: go
+#    parameters:
+#      should_release:
+#        type: boolean
+#        default: false
+#    steps:
+#      - checkout
+#      - install-ko
+#      - setup-gcp-cli
+#      - load-gcp-environment-values
+#      - run:
+#          name: "Build Docker image and push to Artifact Registry"
+#          command: |
+#            echo "export IMAGE_NAME=$(KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app ko build cmd/sample_app/main.go --bare)" >> $BASH_ENV
+#      - unless:
+#          condition: << parameters.should_release >>
+#          steps:
+#            - run:
+#                name: "Deploy docker image to Cloud Run and release"
+#                command: |
+#                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --tag circleci-deploy
+#      - when:
+#          condition: << parameters.should_release >>
+#          steps:
+#            - run:
+#                name: "Deploy docker image to Cloud Run and release"
+#                command: |
+#                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic --tag circleci-deploy
+#      - send-notification-with-slack:
+#          event: fail
+#          message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
+
   build-image-and-deploy:
     description: "Build Docker image and push it to Artifact Registry. After that, deploy to Cloud Run. (After that, release it optionally)"
-    executor: go
+    executor: base
     parameters:
       should_release:
         type: boolean
         default: false
     steps:
       - checkout
-      - install-ko
       - setup-gcp-cli
       - load-gcp-environment-values
       - run:
           name: "Build Docker image and push to Artifact Registry"
           command: |
-            echo "export IMAGE_NAME=$(KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app ko build cmd/sample_app/main.go --bare)" >> $BASH_ENV
+            docker build -f build/packages/docker/Dockerfile.sample_app -t ${IMAGE_NAME} .
+            docker push ${IMAGE_NAME}
       - unless:
           condition: << parameters.should_release >>
           steps:
@@ -168,16 +204,15 @@ jobs:
                 command: |
                   gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --tag circleci-deploy
       - when:
-            condition: << parameters.should_release >>
-            steps:
-                - run:
-                    name: "Deploy docker image to Cloud Run and release"
-                    command: |
-                      gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic --tag circleci-deploy
+          condition: << parameters.should_release >>
+          steps:
+            - run:
+                name: "Deploy docker image to Cloud Run and release"
+                command: |
+                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic --tag circleci-deploy
       - send-notification-with-slack:
           event: fail
           message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
-
 workflows:
   # masterブランチ以外
   build-and-test:
@@ -191,6 +226,11 @@ workflows:
       - build-and-test:
           requires:
             - send-notification-workflow-start
+      # TODO: masterブランチ以外で動作確認するため一時的にジョブを追加
+      - build-image-and-deploy:
+          should_release: false
+          requires:
+            - build-and-test
       - send-notification-workflow-success:
           workflow-name: "build-and-test"
           requires:
