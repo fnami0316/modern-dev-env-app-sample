@@ -118,7 +118,10 @@ commands:
         default: ""
     steps:
       - run:
-          command: docker build -f << parameters.dockerfile_path >> -t << parameters.image_name >> .
+          command: |
+            echo << parameters.image_name >>
+            echo << parameters.dockerfile_path >>
+            docker build -f << parameters.dockerfile_path >> -t << parameters.image_name >> .
 
   push-image:
     description: "Push Docker image"
@@ -128,7 +131,9 @@ commands:
         default: ""
     steps:
       - run:
-          command: docker push << parameters.image_name >>
+          command: |
+            echo << parameters.image_name >>
+            docker push << parameters.image_name >>
 
 jobs:
   send-notification-workflow-start:
