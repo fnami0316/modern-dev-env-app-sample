@@ -107,6 +107,19 @@ commands:
 #    steps:
 #      - run: go install github.com/google/ko@latest
 
+  docker-login-to-artifact-registry:
+    description: "Login to Artifact Registry With Service Account Key"
+    parameters:
+      service_account_key:
+        type: string
+        default: ""
+      location:
+        description: "Artifact Registry location (ex. us-central1)"
+        type: string
+        default: ""
+    steps:
+      - run: echo << parameters.service_account_key >> | docker login -u _json_key --password-stdin https://<< parameters.location >>-docker.pkg.dev
+
   build-image:
     description: "Build Docker image"
     parameters:
@@ -119,8 +132,6 @@ commands:
     steps:
       - run:
           command: |
-            echo << parameters.image_name >>
-            echo << parameters.dockerfile_path >>
             docker build -f << parameters.dockerfile_path >> -t << parameters.image_name >> .
 
   push-image:
@@ -132,7 +143,6 @@ commands:
     steps:
       - run:
           command: |
-            echo << parameters.image_name >>
             docker push << parameters.image_name >>
 
 jobs:
@@ -222,16 +232,12 @@ jobs:
             command: |
                 echo "export IMAGE_NAME=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app" >> $BASH_ENV
       - setup_remote_docker
+      - docker-login-to-artifact-registry:
+          service_account_key: ${GCLOUD_SERVICE_KEY}
+          location: ${GCP_REGION}
       - build-image:
           dockerfile_path: "build/packages/docker/Dockerfile.sample_app"
           image_name: ${IMAGE_NAME}
-      - run:
-          description: "Authenticate Artifact Registry with Service Account"
-          command: |
-            export OIDC_SERVICE_ACCOUNT_EMAIL=circleci@${GCP_PJ_ID}.iam.gserviceaccount.com
-            echo "OIDC_SERVICE_ACCOUNT_EMAIL: ${OIDC_SERVICE_ACCOUNT_EMAIL}"
-            # gcloud auth print-access-token --impersonate-service-account ${OIDC_SERVICE_ACCOUNT_EMAIL} | docker login -u oauth2accesstoken --password-stdin https://${GCP_REGION}-docker.pkg.dev
-            echo ${GCLOUD_SERVICE_KEY} | docker login -u _json_key --password-stdin https://${GCP_REGION}-docker.pkg.dev
       - push-image:
           image_name: ${IMAGE_NAME}
       - unless:
