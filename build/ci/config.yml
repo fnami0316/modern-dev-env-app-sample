@@ -191,6 +191,7 @@ jobs:
       - checkout
       - setup-gcp-cli
       - load-gcp-environment-values
+      - setup_remote_docker
       - run:
           name: "Build Docker image and push to Artifact Registry"
           command: |
