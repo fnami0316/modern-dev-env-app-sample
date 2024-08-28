@@ -1,15 +1,11 @@
 version: 2.1
 
 orbs:
-  go: circleci/go@1.11.0 # Goモジュールのダウンロード(キャッシュも使用)、go test実行を楽にする用
   slack: circleci/slack@4.13.3 # Slack通知用
   gcp-cli: circleci/gcp-cli@3.2.1 # gcloud CLIのインストール、初期化用
 
 # 実行環境の定義
 executors:
-  go:
-    docker:
-      - image: cimg/go:1.22.5
   base:
     docker:
       - image: cimg/base:current
@@ -69,21 +65,6 @@ commands:
               ]
             }
 
-  go-mod-download:
-    description: "Download Go modules with cache and save cache with Go Orb"
-    steps:
-      - go/load-cache
-      - go/mod-download
-      - go/save-cache
-
-  go-test:
-    description: "Run go test with Go Orb"
-    steps:
-      - go/test:
-          covermode: atomic
-          failfast: true
-          race: true
-
   setup-gcp-cli:
     description: "Install gcloud CLI and setup with environment name"
     steps:
@@ -101,11 +82,6 @@ commands:
             echo "export GCP_PJ_ID=$(gcloud config get-value project)" >> $BASH_ENV
             echo "export GCP_REGION=$(gcloud config get-value compute/region)" >> $BASH_ENV
             echo "export GCP_ZONE=$(gcloud config get-value compute/zone)" >> $BASH_ENV
-
-#  install-ko:
-#    description: "Install ko"
-#    steps:
-#      - run: go install github.com/google/ko@latest
 
   docker-login-to-artifact-registry:
     description: "Login to Artifact Registry With Service Account Key"
@@ -182,40 +158,6 @@ jobs:
           event: fail
           message: ":fire: CircleCI Job:${CIRCLE_JOB} (node${CIRCLE_NODE_INDEX}) failure ! :fire:"
 
-#  build-image-and-deploy:
-#    description: "Build Docker image and push it to Artifact Registry. After that, deploy to Cloud Run. (After that, release it optionally)"
-#    executor: go
-#    parameters:
-#      should_release:
-#        type: boolean
-#        default: false
-#    steps:
-#      - checkout
-#      - install-ko
-#      - setup-gcp-cli
-#      - load-gcp-environment-values
-#      - run:
-#          name: "Build Docker image and push to Artifact Registry"
-#          command: |
-#            echo "export IMAGE_NAME=$(KO_DOCKER_REPO=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app ko build cmd/sample_app/main.go --bare)" >> $BASH_ENV
-#      - unless:
-#          condition: << parameters.should_release >>
-#          steps:
-#            - run:
-#                name: "Deploy docker image to Cloud Run and release"
-#                command: |
-#                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --tag circleci-deploy
-#      - when:
-#          condition: << parameters.should_release >>
-#          steps:
-#            - run:
-#                name: "Deploy docker image to Cloud Run and release"
-#                command: |
-#                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic --tag circleci-deploy
-#      - send-notification-with-slack:
-#          event: fail
-#          message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
-
   build-image-and-deploy:
     description: "Build Docker image and push it to Artifact Registry. After that, deploy to Cloud Run. (After that, release it optionally)"
     executor: base
@@ -257,6 +199,7 @@ jobs:
       - send-notification-with-slack:
           event: fail
           message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
+
 workflows:
   # masterブランチ以外
   build-and-test:
@@ -270,11 +213,6 @@ workflows:
       - build-and-test:
           requires:
             - send-notification-workflow-start
-      # TODO: masterブランチ以外で動作確認するため一時的にジョブを追加
-      - build-image-and-deploy:
-          should_release: false
-          requires:
-            - build-and-test
       - send-notification-workflow-success:
           workflow-name: "build-and-test"
           requires:
