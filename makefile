@@ -20,9 +20,7 @@ docker-compose-build:
 # 全コンテナを起動
 docker-compose-up:
 	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} up
-	# ヘルスチェックは起動時のみに行うため削除
-	make docker-compose-down-spanner-emulator-healthcheck
-	make docker-compose-down-api-healthcheck
+	# コンテナをバックグラウンドで起動しない場合、ヘルスチェック用コンテナを落とすためのコマンドは実行不可能
 # 全コンテナをバックグラウンドで起動
 docker-compose-up-d:
 	docker-compose -f ${local-dev-env-docker-compose-file} -p ${local-dev-env-docker-compose-project} up -d
