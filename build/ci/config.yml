@@ -101,8 +101,6 @@ commands:
             echo "export GCP_PJ_ID=$(gcloud config get-value project)" >> $BASH_ENV
             echo "export GCP_REGION=$(gcloud config get-value compute/region)" >> $BASH_ENV
             echo "export GCP_ZONE=$(gcloud config get-value compute/zone)" >> $BASH_ENV
-            # ArtifactRegistry上のイメージの完全名(=Dockerイメージのタグ)
-            echo "export IMAGE_NAME=${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app" >> $BASH_ENV
 
 #  install-ko:
 #    description: "Install ko"
@@ -184,6 +182,13 @@ jobs:
     description: "Build Docker image and push it to Artifact Registry. After that, deploy to Cloud Run. (After that, release it optionally)"
     executor: base
     parameters:
+      dockerfile_path:
+        type: string
+        default: "build/packages/docker/Dockerfile.sample_app"
+      # ArtifactRegistry上のイメージの完全名(=Dockerイメージのタグ)
+      image_name:
+        type: string
+        default: "${GCP_REGION}-docker.pkg.dev/${GCP_PJ_ID}/api/sample_app"
       should_release:
         type: boolean
         default: false
@@ -195,22 +200,22 @@ jobs:
       - run:
           name: "Build Docker image and push to Artifact Registry"
           command: |
-            docker build -f build/packages/docker/Dockerfile.sample_app -t ${IMAGE_NAME} .
-            docker push ${IMAGE_NAME}
+            docker build -f << parameters.dockerfile_path >> -t << parameters.image_name >> .
+            docker push << parameters.image_name >>
       - unless:
           condition: << parameters.should_release >>
           steps:
             - run:
                 name: "Deploy docker image to Cloud Run and release"
                 command: |
-                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --tag circleci-deploy
+                  gcloud run deploy api --image=<< parameters.image_name >> --project=${GCP_PJ_ID} --region=${GCP_REGION} --tag circleci-deploy
       - when:
           condition: << parameters.should_release >>
           steps:
             - run:
                 name: "Deploy docker image to Cloud Run and release"
                 command: |
-                  gcloud run deploy api --image=${IMAGE_NAME} --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic --tag circleci-deploy
+                  gcloud run deploy api --image=<< parameters.image_name >> --project=${GCP_PJ_ID} --region=${GCP_REGION} --no-traffic --tag circleci-deploy
       - send-notification-with-slack:
           event: fail
           message: ":fire: CircleCI Job:${CIRCLE_JOB} failure ! :fire:"
