@@ -22,7 +22,7 @@
 
 ### 1.2.1. システム構成
 
-**システム構成図**  
+**システム構成図(全体)**  
 ![モダン開発環境-Lv2(具体)](https://github.com/user-attachments/assets/4574b6e8-2f31-40a3-b757-d819b44af822)
 
 システムの構成要素|説明
@@ -33,6 +33,16 @@ Webアプリケーション|- 機能: gRPCのAPI。サンプルデータの追�
 CI/CDツール|CircleCI
 連絡ツール|Slack
 ローカルマシン|Mac
+
+**システム構成(ローカルマシン)**
+![モダン開発環境-ローカル環境のシステム構成、コンテナオーケストレーションの設定](https://github.com/user-attachments/assets/ed475a50-47eb-4005-84e1-37f9341e72ea)
+
+
+**システム構成(CircleCI, リモート環境)**
+![モダン開発環境-Lv2(GCP, CircleCI) drawio](https://github.com/user-attachments/assets/20a1a292-cc8f-410e-bc3f-7fef7eb8a682)
+
+
+
 
 ### 1.2.2. 想定ワークフロー
 上記のシステム構成において、以下に示すフローで開発・保守のタスクを進めることを想定しています。
