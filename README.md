@@ -2,7 +2,7 @@
 モダンな開発環境の一例として、以下のシステム構成の環境を提供するサンプルプロジェクトです。  
 本READMEに含まれる環境構築手順に従ってセットアップできます。
 
-## システム構成図
+## 1.1. システム構成図
 **全体**  
 ![モダン開発環境-Lv2(具体)](https://github.com/user-attachments/assets/46b8aeeb-b753-41bc-a4af-cedcad2697a9)
 
@@ -21,6 +21,29 @@ CI/CDツール|CircleCI
 
 **CircleCI, リモート環境**  
 ![モダン開発環境-Lv2(GCP, CircleCI)](https://github.com/user-attachments/assets/788b3230-7f19-4eb0-864f-bf07ddc2a7a7)
+
+## 1.2. ワークフロー
+先述のシステム構成で、開発・保守のタスクを以下に示すワークフローで進めることができます。
+
+### 前提
+**ブランチの種類**
+- masterブランチ: リモート環境へデプロイする用意が整った状態のブランチ
+- 作業ブランチ: masterという名前でないブランチ。発生したタスクに対して変更を加えるためのブランチ
+
+**デプロイとリリース**  
+互いに似ている言葉ですが、このサンプルプロジェクトにおいては以下のように使い分けることにしています。
+- デプロイ: クラウド上でアプリケーションのコンテナを起動させること。非公開のURLを通してアクセス可能。
+- リリース: 通常利用で使用する公開URLへのアクセスに対して、トラフィックを流すコンテナを切り替えること。
+
+![ワークフロー](https://github.com/user-attachments/assets/0c116ff6-9171-41c5-b1c4-900ec9521c14)
+
+「作業ブランチに変更を加える」、「クラウドインフラリソースの設定の変更を適用」について、「ケース別の具体的な作業手順」は後述します。
+
+**注意点**  
+このサンプルプロジェクトでは、リモートに1つの環境があることしか想定していません。  
+Webアプリケーション開発現場においては、QA環境、ステージング環境、本番環境といった環境も並行して存在しているのが一般的です。  
+リモートに1つしか環境がなく、これを開発兼本番環境とする場合、例えばTerraformを適用するとリモート環境のクラウドインフラへ即座に設定が反映されるため、これによってインフラ周りの不具合が発生した場合は即ユーザーへ影響、という形になってしまいます。  
+実際の現場でモダンな環境を整備する際には、対象のWebアプリのシステム検証〜本番リリースまでのワークフローをよく検討した上で、ブランチ運用・CircleCIの設定・Terraformの設定を検討することになると思います。
 
 ---
 # 2. 環境構築手順
@@ -96,7 +119,7 @@ tfenv use 1.9.1
  
 ## 2.2. 各サービス、ツールの詳細設定
 **前提** 
-[2.1. 各サービス、ツールの初期設定](# 21-各サービス、ツールの初期設定) の作業を終えていることが前提です。
+2.1. 各サービス、ツールの初期設定 の作業を終えていることが前提です。
  
 ### 2.2.1. GitHub
 #### 2.2.1.1. リポジトリの作成
@@ -113,7 +136,7 @@ Choose a license|None
  
  
 #### 2.2.1.2. サンプルプロジェクトをリポジトリに登録
-[サンプルプロジェクト](https://github.com/fnami0316/modern-dev-env-app-sample)をコピーしたリモートリポジトリをGitHubに作成します。
+本サンプルプロジェクトをコピーしたリモートリポジトリをGitHubに作成します。
  
 ##### 手順
 ローカルマシンのターミナルで以下を実行してください。
@@ -458,7 +481,226 @@ make docker-go-test-serial
 grpcurl -plaintext -d '{"name": "sample1"}' localhost:8080 api.SampleService.CreateSample
 ```
 
+---
+# 3. ディレクトリ・ファイル構成
+```
+リポジトリルート/
+    .circleci/
+        config.yml # ../build/ci/config.ymlへのシンボリックリンクを設定。CircleCIの設定ファイルはここに配置されている必要がある。
+    api/ # API仕様を配置するディレクトリ
+        proto/ # 各RPCサービスの.protoを配置するディレクトリ
+            sample.proto
+    build/ # アプリのビルド、CIに必要なファイルを配置するディレクトリ
+        ci/ # CIの設定やスクリプトを配置
+            config.yml # CircleCIの設定ファイル
+        packages/ # クラウド (AMI)、コンテナ (Docker)、OS (deb、rpm、pkg) パッケージの設定とスクリプトを配置
+            docker/ # Dockerfileを配置
+                Dockerfile.sample_app # サンプルプロジェクトのGoアプリケーションのイメージを生成するためのDockerfile
+    cmd/ # アプリケーションのエントリポイントのソースコードを配置するディレクトリ
+        sample_app/ # サンプルプロジェクトが提供するgRPC APIのエントリポイントのソースコード群を配置
+            environment_variables.go # エントリポイントが必要とする環境変数の定義と、環境変数ロード処理を記述(エントリポイントから呼び出す)
+            infrastructures.go # インフラ層の依存性注入処理を記述(エントリポイントから呼び出す)
+            main.go # Goアプリケーションのエントリポイント
+            presentations.go # プレゼンテーション層の依存性注入処理を記述(エントリポイントから呼び出す)
+            usecases.go # アプリケーション層の依存性注入処理を記述(エントリポイントから呼び出す)
+    deploy/ # アプリケーションをデプロイするインフラ周りの設定ファイルを配置
+        docker-compose/ # docker-compose向けの設定ファイルを配置
+            .env # docker-compose.yml上で展開する環境変数およびコンテナに渡す環境変数を記述
+            docker-compose.yml # ローカル開発環境の構成管理
+            docker-compose-circleci.yml # CircleCI環境の構成管理(ほぼローカル開発環境のものと同じだが、CircleCIの仕様上の制約で一部が異なる)
+        terraform/ # terraformの設定ファイルを配置
+            backend.tf   # tfstate保存先の設定
+            main.tf      # エントリポイント。他の設定ファイルに記述していない全ての設定
+            outputs.tf   # 全ての出力の宣言とその説明
+            providers.tf # 使用する各providerのデフォルト設定
+            README.md    # terraformのREADME
+            variables.tf # 全ての変数の宣言とその説明
+            versions.tf  # terraform自体のバージョンと各providerのバージョン設定
+    internal/ # プライベートなアプリケーション, ライブラリのコードを配置するディレクトリ
+        sample_app/
+            application/ # アプリケーション層
+                repository/ # リポジトリのインターフェース定義を配置(実装はインフラ層で)
+                    transaction/ トランザクション関連のインターフェース定義を配置
+                        connection_interface.go
+                        transaction_interface.go
+                    sample_repository_interface.go # Sampleエンティティリポジトリのインターフェース定義
+                    sample_repository_mock.go # Sampleエンティティリポジトリのインターフェースのモック(自動生成)
+                request/ # 各ユースケースのリクエストパラメータの実装を配置(各パラメータは、ドメイン層のオブジェクトで扱う)
+                    sample/ # Sampleサービスの各メソッドのリクエストパラメータの実装を配置
+                        create_sample_request.go # SampleサービスCreateSampleメソッドのリクエストパラメータ
+                        delete_sample_request.go # SampleサービスDeleteSampleメソッドのリクエストパラメータ
+                        list_sample_request.go   # SampleサービスListSampleメソッドのリクエストパラメータ
+                        update_sample_request.go # SampleサービスUpdateSampleメソッドのリクエストパラメータ                       
+                response/ # 各ユースケースのレスポンスパラメータの実装を配置
+                    sample/ # Sampleサービスの各メソッドのレスポンスパラメータの実装を配置(各パラメータは、ドメイン層のオブジェクトで扱う)
+                        create_sample_response.go # SampleサービスCreateSampleメソッドのレスポンスパラメータ
+                        delete_sample_response.go # SampleサービスDeleteSampleメソッドのレスポンスパラメータ
+                        list_sample_response.go   # SampleサービスListSampleメソッドのレスポンスパラメータ
+                        update_sample_response.go # SampleサービスUpdateSampleメソッドのレスポンスパラメータ              
+                usecase/ # 各ユースケースの実行処理の実装を配置
+                    sample/ # Sampleサービスの各メソッドの実行処理の実装を配置
+                        create_sample_usecase.go           # ユースケース"SampleサービスCreateSampleメソッド"を実行する構造体の実装
+                        create_sample_usecase_interface.go # ユースケース"SampleサービスCreateSampleメソッド"を実行する構造体のインターフェース定義
+                        create_sample_usecase_mock.go      # ユースケース"SampleサービスCreateSampleメソッド"を実行する構造体のモック
+                        delete_sample_usecase.go           # ユースケース"SampleサービスDeleteSampleメソッド"を実行する構造体の実装
+                        delete_sample_usecase_interface.go # ユースケース"SampleサービスDeleteSampleメソッド"を実行する構造体のインターフェース定義
+                        delete_sample_usecase_mock.go      # ユースケース"SampleサービスCreateSampleメソッド"を実行する構造体のモック
+                        list_sample_usecase.go             # ユースケース"SampleサービスListSampleメソッド"を実行する構造体の実装
+                        list_sample_usecase_interface.go   # ユースケース"SampleサービスListSampleメソッド"を実行する構造体のインターフェース定義
+                        list_sample_usecase_mock.go        # ユースケース"SampleサービスListSampleメソッド"を実行する構造体のモック
+                        update_sample_usecase.go           # ユースケース"SampleサービスUpdateSampleメソッド"を実行する構造体の実装
+                        update_sample_usecase_interface.go # ユースケース"SampleサービスUpdateSampleメソッド"を実行する構造体のインターフェース定義
+                        update_sample_usecase_mock.go      # ユースケース"SampleサービスUpdateSampleメソッド"を実行する構造体のモック
+            domain/ # ドメイン層
+                entity/ # エンティティの実装を配置
+                    sample/ # sampleエンティティ関連の実装を配置
+                        sample.go # sampleエンティティの実装
+                service/ # ドメインサービスのソースコードを配置するディレクトリ
+                value/ # 値オブジェクトのソースコードを配置するディレクトリ
+                    sample_id.go # 値オブジェクトSampleIDのソースコード
+                    sample_name.go # 値オブジェクトSampleNameのソースコード
+            infrastructure/ # インフラ層
+                repository/ # リポジトリの実装を配置
+                    gorm/ # データストアがCloud Spanner、ORマッパー"GORM"利用したリポジトリの実装を配置(インターフェース定義はアプリケーション層でなされている)
+                        transaction/ # トランザクション関連のインターフェース実装を配置
+                            connection.go
+                            transaction.go
+                        sample_repository.go # Sampleエンティティのリポジトリインターフェースの実装を配置
+                        setup.go # エントリポイントで呼び出すインフラ層の依存性注入処理の一部(GORMを利用してSpannerデータベースへ接続、スキーマ定義反映)
+            presentation/ # プレゼンテーション層
+                pb/ # protocで自動生成されるGo言語向けgRPCコードのファイル(*.pb.go) 置き場
+                    api/                           
+                        sample.pb.go # protocで自動生成
+                        sample_grpc.pb.go # protocで自動生成
+                sample/ # sample_grpc.pb.go で定義されているgRPCサーバーインターフェース"SampleSeviceServer"に対する実装を配置
+                    create_sample.go # gRPCサーバーインターフェース"SampleServiceServer"のCreateSampleメソッドを扱う構造体の定義。
+                    delete_sample.go # gRPCサーバーインターフェース"SampleServiceServer"のDeleteSampleメソッドを扱う構造体の定義。
+                    list_sample.go   # gRPCサーバーインターフェース"SampleServiceServer"のListSampleメソッドを扱う構造体の定義。
+                    sample.go        # gRPCサーバーインターフェース"SampleServiceServer"の実装にあたる構造体"SampleServiceServer"の定義。各メソッドは埋め込み構造体へ移譲
+                    update_sample.go # gRPCサーバーインターフェース"SampleServiceServer"のUpdateSampleメソッドを扱う構造体の定義。
+    scripts/ # Makefileから呼び出すスクリプトがあれば配置
+    .editorconfig # 各ファイルの拡張子別のフォーマット設定(EditorConfigによる自動ファイルフォーマットは、多くのIDE・エディタで対応している)
+    .gitignore
+    go.mod
+    go.sum
+    makefile # よく使うがオプション指定が複雑なコマンドをエイリアスとして登録
+    README.md # このサンプルプロジェクトの説明
+```
+
+**補足**  
+プロジェクト構成は、[Standard Go Project Layout](https://github.com/golang-standards/project-layout/blob/master/README_ja.md)で紹介されている構成になるべく沿う形にしてみました。
+`cmd/sample_app/`以下には、本サンプルプロジェクトのGoアプリケーションのエントリポイントとなる`main.go`を配置しています。
+`main.go`から呼び出す内部処理は`internal/sample_app/`配下に配置しています。
+`internal/sample_app/`以下では、オニオンアーキテクチャを意識して、以下の4層に大きく分割したディレクトリ構成にしています。
+
+- presentation
+- application
+- domain
+- infrastructure
+
+`deploy/terraform/`以下は、シンプルに以下の構成としています。
+```
+terraform/
+  backend.tf # tfstateの保存先と、保存先の詳細設定
+  main.tf # エントリポイントであり、他のファイルに記述していない全ての設定
+  outputs.tf # 全ての出力宣言および説明
+  providers.tf # 使用するprovider群のデフォルト設定
+  variables.tf  # 全ての変数宣言および説明。各リソースで今後環境ごとに値を切り替えそうな設定項目。
+  versions.tf  # terraformのバージョンとproviderのバージョン
+```
+
+**参考**  
+- [Standard Go Project Layout](https://github.com/golang-standards/project-layout/blob/master/README_ja.md)
+- [「それ、どこに出しても恥ずかしくないTerraformコードになってるか？」](https://speakerdeck.com/yuukiyo/terraform-aws-best-practices)
+
+---
+# 4. ケース別の具体的な作業手順
+[ワークフロー](# ワークフロー)の図に登場する以下の工程について、具体的な作業手順を説明します。
+- 作業ブランチに変更を加える
+- クラウドインフラリソースの設定の変更を適用
+
+### 4.1. Goアプリケーション(API)の開発・保守の場合
+1. 必要な`*.go`ファイルにプロダクションコードを記述し、`*_go.test`ファイルにテストコードを記述します。
+2. ローカル開発環境を(再)起動します(スキーマ定義に変更が入らない場合は不要です)
+```
+make doker-compose-full-reload-d
+```
+
+3. 記述したプロダクションコードのユニットテストを実行します。
+```
+make docker-go-test-serial
+```
+
+4. ローカル開発環境のAPIの動作を確認します。
+```
+## サンプルデータを追加
+grpcurl -plaintext -d '{"name": "sample1"}' localhost:8080 api.SampleService.CreateSample
+
+## サンプルデータを更新
+grpcurl -plaintext -d '{"id": "<サンプルデータ追加時のレスポンスに含まれるID>", "name": "updated-sample1"}' localhost:8080  api.SampleService.UpdateSample
+
+## サンプルデータの一覧を取得
+grpcurl -plaintext -d '{"ids":["<サンプルデータ追加時のレスポンスに含まれるID>"]}' lodalhost:8080 api.SampleService.ListSamples
+
+## サンプルデータを削除
+grpcurl -plaintext -d '{"id":["<サンプルデータ追加時のレスポンスに含まれるID>"]}' localhost:8080 api.SampleService.DeleteSample
+```
 
 
+<!-- TODO: 以下について場合分けされておらず不十分
+- protoからのGoソース生成
+- 各層のGoソース記述
+- スキーマ変更時
+-->
+
+# 4.2. クラウドインフラリソースの設定変更の場合
+1. リソースの変更内容に応じて、deploy/terraform/ 以下の.tfファイルを適宜修正します。
+2. ローカルマシンのターミナルで以下を実行します。
+
+```
+# 1. Terraformが、GCPのインフラリソースを変更する権限があるGoogleアカウントを使って認証できるようにする
+gcloud auth application-default login
+
+# ブラウザで対象のGoogleアカウントにログイン。ログイン後ターミナルに戻ってくる(ブラウザのクッキーを全削除しておかないとうまく動作しないかも)
+
+# 2. Terraformのルートモジュールへ移動
+cd <プロジェクトルート>/deploy/terraform
+
+# 3. .tfの構文に問題がないかチェック
+terraform validate
+
+# 4. 必要なproviderをセットアップ
+terraform init
+
+# 5. リソース設定の変更箇所を事前確認
+terraform plan
+
+# 6. リソース設定の変更を適用
+terraform apply
+```
+
+3. リモート開発環境のAPIの動作を確認します。
+
+```
+## サンプルデータを追加
+grpcurl -d '{"name": "sample1"}' <Cloud Run サービスのID>.run.app:443 api.SampleService.CreateSample
+
+## サンプルデータを更新
+grpcurl -d '{"id": "<サンプルデータ追加時のレスポンスに含まれるID>", "name": "updated-sample1"}' <Cloud Run サービスのID>.run.app:443  api.SampleService.UpdateSample
+
+## サンプルデータの一覧を取得
+grpcurl -d '{"ids":["<サンプルデータ追加時のレスポンスに含まれるID>"]}' <Cloud Run サービスのID>.run.app:443 api.SampleService.ListSamples
+
+## サンプルデータを削除
+grpcurl -d '{"id":["<サンプルデータ追加時のレスポンスに含まれるID>"]}' <Cloud Run サービスのID>.run.app:443 api.SampleService.DeleteSample
+```
+
+`<Cloud Run サービスのID>`は、GCPのブラウザコンソール等で確認可能。
+コンソール上では、URLが `https://<Cloud Run サービスのID>.run.app` と表示されます。
 
 
+# 4.3. CircleCIの設定変更の場合
+```
+1. .circleci/config.yml を開き、設定を変更して作業ブランチにcommit、pushします。
+2. CircleCIのプロジェクトへアクセスし、期待通りの挙動になっていることを確認します。
+```
