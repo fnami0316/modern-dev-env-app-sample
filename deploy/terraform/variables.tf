@@ -1,7 +1,7 @@
 variable "default_project_id" {
   type = string
   description = "各リソースのデフォルトのプロジェクトID"
-  default = "imposing-sentry-429112-d8"
+  default = "変更必須"
 }
 variable "default_region" {
   type = string
@@ -53,11 +53,11 @@ variable "spanner_instance_dev" {
   })
   default = {
     # インスタンス名(ID)
-    name = "sentry-429112-dev"
+    name = "変更必須"
     # インスタンス構成
     config = "regional-us-central1"
     # 表示名
-    display_name = "sentry-429112-dev"
+    display_name = "変更必須"
     # ノード数
     num_nodes = 1
   }
@@ -71,8 +71,8 @@ variable "spanner_database_dev" {
   })
   default = {
     # インスタンス名(ID)
-    instance = "sentry-429112-dev"
+    instance = "変更必須"
     # データベース名(ID)
-    name = "sentry-429112-dev-1"
+    name = "変更必須"
   }
 }
