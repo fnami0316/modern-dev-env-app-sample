@@ -26,14 +26,14 @@ func main() {
 		log.Fatalf("failed to createInfrastructuresWithGORMSpanner(): %v", err)
 	}
 
-	// ユースケース層のインスタンスを生成
-	useCases, err := createUseCases(infrastructures)
+	// アプリケーション層のインスタンスを生成
+	applications, err := createApplications(infrastructures)
 	if err != nil {
-		log.Fatalf("failed to createUseCases(): %v", err)
+		log.Fatalf("failed to createApplications(): %v", err)
 	}
 
 	// プレゼンテーション層のインスタンスを生成
-	presentations, err := createPresentations(useCases)
+	presentations, err := createPresentations(applications)
 	if err != nil {
 		log.Fatalf("failed to createPresentations(): %v", err)
 	}

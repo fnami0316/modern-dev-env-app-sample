@@ -25,13 +25,13 @@ func newPresentations(
 
 // createPresentations 全プレゼンテーション層のインスタンスのファクトリ
 func createPresentations(
-	useCases *useCases,
+	applications *applications,
 ) (*presentations, error) {
 	sampleServiceServer, err := sample.NewSampleServiceServer(
-		useCases.iListSamplesUseCase,
-		useCases.iCreateSampleUseCase,
-		useCases.iUpdateSampleUseCase,
-		useCases.iDeleteSampleUseCase,
+		applications.iListSamplesUseCase,
+		applications.iCreateSampleUseCase,
+		applications.iUpdateSampleUseCase,
+		applications.iDeleteSampleUseCase,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewSampleServiceServer(): %w", err)

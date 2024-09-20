@@ -6,22 +6,22 @@ import (
 	application "modern-dev-env-app-sample/internal/sample_app/application/usecase/sample"
 )
 
-// useCases 全ユースケースインスタンスをまとめた構造体
-type useCases struct {
+// applications アプリケーション層の全インスタンスをまとめた構造体
+type applications struct {
 	iListSamplesUseCase  application.IListSamplesUseCase
 	iCreateSampleUseCase application.ICreateSampleUseCase
 	iUpdateSampleUseCase application.IUpdateSampleUseCase
 	iDeleteSampleUseCase application.IDeleteSampleUseCase
 }
 
-// newUseCases コンストラクタ
-func newUseCases(
+// newApplications applicationsのコンストラクタ
+func newApplications(
 	iListSampleUseCase application.IListSamplesUseCase,
 	iCreateSampleUseCase application.ICreateSampleUseCase,
 	iUpdateSampleUseCase application.IUpdateSampleUseCase,
 	iDeleteSampleUseCase application.IDeleteSampleUseCase,
-) (*useCases, error) {
-	return &useCases{
+) (*applications, error) {
+	return &applications{
 		iListSamplesUseCase:  iListSampleUseCase,
 		iCreateSampleUseCase: iCreateSampleUseCase,
 		iUpdateSampleUseCase: iUpdateSampleUseCase,
@@ -29,11 +29,11 @@ func newUseCases(
 	}, nil
 }
 
-// createUsesCases 全ユースケースインスタンスのファクトリ
-func createUseCases(
+// createUsesCases applicationsのファクトリ
+func createApplications(
 	infras *infrastructures,
-) (*useCases, error) {
-	// ユースケース層のインスタンス生成
+) (*applications, error) {
+	// ユースケースを実行する構造体のインスタンス生成
 	listSamplesUseCase, err := application.NewListSamplesUseCase(infras.iSampleRepo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewListSamplesUseCase(): %w", err)
@@ -50,7 +50,7 @@ func createUseCases(
 	if err != nil {
 		return nil, fmt.Errorf("failed to NewDeleteSampleUseCase(): %w", err)
 	}
-	return newUseCases(
+	return newApplications(
 		listSamplesUseCase,
 		creatSampleUseCase,
 		updateSampleUseCase,
