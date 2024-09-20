@@ -1,8 +1,9 @@
-# このリポジトリは何か
+# 1. このリポジトリは何か
 モダンな開発環境の一例として、以下のシステム構成の環境を提供するサンプルプロジェクトです。  
 本READMEに含まれる環境構築手順に従ってセットアップできます。
 
-**システム構成図(全体)**  
+## システム構成図
+**全体**  
 ![モダン開発環境-Lv2(具体)](https://github.com/user-attachments/assets/46b8aeeb-b753-41bc-a4af-cedcad2697a9)
 
 システムの構成要素|説明
@@ -14,11 +15,11 @@ CI/CDツール|CircleCI
 連絡ツール|Slack
 ローカルマシン|Mac
 
-**システム構成(ローカルマシン)**
+**ローカルマシン**
 ![モダン開発環境-ローカル環境のシステム構成、コンテナオーケストレーションの設定](https://github.com/user-attachments/assets/c5ea98bf-9b85-4238-98fb-f95a3bbf4937)
 
 
-**システム構成(CircleCI, リモート環境)**
+**CircleCI, リモート環境**  
 ![モダン開発環境-Lv2(GCP, CircleCI)](https://github.com/user-attachments/assets/788b3230-7f19-4eb0-864f-bf07ddc2a7a7)
 
 ---
@@ -29,27 +30,31 @@ CI/CDツール|CircleCI
 また、各ツール、サービスとも経年変化により手順が多少変わる可能性があります。  
 
 ### 2.1.1. GitHub
-#### GitHubのアカウントを作成
-[GitHub](https://github.com/)へアクセス > Sign up
+#### 2.1.1.1. GitHubアカウントを作成
+[GitHub](https://github.com/)へアクセス > Sign up  
 以降、画面の指示に従って作成してください
 Free/Teamsは任意。Freeの場合かつ、Privateリポジトリにする場合は、後述のリポジトリの保護ルールが適用できません。
  
 ### 2.1.2. GCP
-#### Googleアカウントを作成
+#### 2.1.2.1. Googleアカウントを作成
 GCPインフラを構築するGoogleアカウントを用意してください。
 
-#### GCPのFree Trialを申請
+#### 2.1.2.2. GCPのFree Trialを申請
 [GCPのFree Trial(90日間$300で使い放題)](https://cloud.google.com/free?hl=ja)を申請してください。  
 クレジットカード情報が必要になります。
  
-#### gcloud CLIをインストール
+#### 2.1.2.3. gcloud CLIをインストール
 [gcloud CLIをインストールする](https://cloud.google.com/sdk/docs/install?hl=ja)に従ってインストールしてください。
 
 ### 2.1.3. grpcurl
-<TODO>
+#### 2.1.3.1. grpcurlをインストール
+```
+# grpcurlをHomebrewでインストール
+brew install grpcurl
+```
  
 ### 2.1.4. CircleCI
-#### CircleCIのアカウントを作成
+#### 2.1.4.1. CircleCIのアカウントを作成
 ①[CircleCI](https://circleci.com/)へアクセス > Sign up > Sign up  
 ②任意のメールアドレス、パスワードを設定してアカウントを作成  
 ③Start a new organization - Get Startedを押下  
@@ -58,17 +63,18 @@ GCPインフラを構築するGoogleアカウントを用意してください�
 ④任意の組織名を入力してLet's goを押下  
  
 ### 2.1.5. Slack
-#### Slackのアカウントを作成
+#### 2.1.5.1. Slackのアカウントを作成
 [Slack](https://slack.com)へアクセス してアカウントを作成してください。
  
-#### Slackのワークスペース、チャンネルを作成
+#### 2.1.5.2. Slackのワークスペース、チャンネルを作成
 GitHubやCircleCIからの通知先となるワークスペース、チャンネルを作成してください。
  
 ### 2.1.6. Docker
+#### 2.1.6.1. Docker for Desktopをインストール
 [Docker Desktop](https://docs.docker.com/desktop/install/mac-install/)からDocker for Desktopをインストールしてください。
 
 ### 2.1.7. Terraform
-#### Terraformをインストール
+#### 2.1.7.1. Terraformをインストール
 ```
 # tfenvをHomebrewでインストール
 brew install tfenv
@@ -85,12 +91,12 @@ tfenv list
 # 使用するterraformのバージョンを切り替え
 tfenv use 1.9.1 
 ```
-実務上、terreformのバージョンアップ作業が発生する可能性を考慮して、tfenv経由でインストールしています。
+実務上、terraformのバージョンアップ作業が発生する可能性を考慮して、tfenv経由でインストールしています。
  
  
 ## 2.2. 各サービス、ツールの詳細設定
 **前提** 
-[2.1. 各サービス、ツールの初期設定](#21-各サービス、ツールの初期設定) の作業を終えていることが前提です。
+[2.1. 各サービス、ツールの初期設定](# 21-各サービス、ツールの初期設定) の作業を終えていることが前提です。
  
 ### 2.2.1. GitHub
 #### 2.2.1.1. リポジトリの作成
@@ -221,7 +227,7 @@ terraform.backend.gcs.bucketと、google_storage_bucket.tfstate.name にあるtf
  
 
 
-### 2.2.4. Terraformを使ってGCPのサービスをプロビジョニングする
+### 2.2.2. Terraformを使ってGCPのサービスをプロビジョニングする
 #### 手順
 ローカルマシンのターミナルで以下を実行してください。
 
@@ -283,8 +289,8 @@ run.googleaips.comを有効化するとArtifactRegistryのAPIも暗黙的に有�
 
 ---
  
-### 2.2.2. CircleCI
-#### 2.2.2.1. CircleCIプロジェクトの作成とGitHub連携
+### 2.2.3. CircleCI
+#### 2.2.3.1. CircleCIプロジェクトの作成とGitHub連携
 ①CircleCIへログイン > Projects > CreateProject  
 ![circleci_create_project](https://github.com/user-attachments/assets/6d14082a-2159-44b9-9224-a0c50c02bec8)
 
@@ -328,7 +334,7 @@ run.googleaips.comを有効化するとArtifactRegistryのAPIも暗黙的に有�
 
 ---
 
-#### 2.2.2.2. CircleCIプロジェクトとSlackを連携
+#### 2.2.3.2. CircleCIプロジェクトとSlackを連携
 ##### 通知先となるSlackチャンネルのワークスペースにSlackアプリを作成
 **①アプリの作成** 
 Slack API Webサイトへアクセス > Your Apps > ログイン > Create New App > From scratch > App Name に任意のアプリ名を入力して対象のワークスペースを選択　> Create App
@@ -348,7 +354,7 @@ Features-OAuth & Permissions > Install to <ワークスペース名> > 許可す
 → OAuth Tokens - Bot User OAuth Token に トークンが表示される (次の工程で使うのでコピーしておく)
  
  
-#### 2.2.2.3. CircleCIプロジェクトに環境変数を設定
+#### 2.2.3.3. CircleCIプロジェクトに環境変数を設定
 CircleCIへログイン > 事前に作成した組織を選択 > Projects > 事前に作成したプロジェクトを選択 > Project Settings > Environment Variables より、それぞれ登録してください。
 
 ##### Slack連携関連
@@ -401,7 +407,7 @@ Environment Variable Name|GOOGLE_COMPUTE_ZONE
 Value|variables.tfにセットしたdefault_zoneの値
 
 
-#### 2.2.3.3. 動作確認
+#### 2.2.3.4. CircleCIとリモート環境の動作確認
 サンプルプロジェクトをコピーした自身のGitHubリポジトリへ空コミットでpushします。
 ```
 git commit --allow-empty -m "空コミット"
@@ -431,7 +437,7 @@ grpcurl -d '{"id":["<サンプルデータ追加時のレスポンスに含ま�
 `https://api-123456789012.us-central1.run.app` の場合、`api-123456789012.us-central1.run.app`
 
 
-### 2.2.5. ローカル環境を起動する
+### 2.2.4. ローカル環境を起動する
 #### 手順
 ①Docker for Desktopを起動します。  
 ②ローカルマシンのターミナルで以下を実行してください。
